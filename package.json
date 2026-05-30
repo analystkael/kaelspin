@@ -1,0 +1,15 @@
+{
+  "name": "kael-spinwheel-server",
+  "version": "1.0.0",
+  "description": "Premium Real-time Spin Wheel Server for Live Streaming",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  },
+  "author": "Antigravity",
+  "license": "ISC"
+}

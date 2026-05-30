@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kael Spin Wheel - Undian Gacha Live</title>
+    <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: transparent;
+            --panel-bg: rgba(8, 9, 21, 0.95);
+            --border-color: rgba(255, 255, 255, 0.07);
+            --text-primary: #f5f6fa;
+            --text-secondary: #7f8fa6;
+            --accent-primary: #ff7675;
+            --accent-secondary: #fbc531;
+            --accent-green: #2ed573;
+            --accent-cyan: #00d2d3;
+            --card-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-color) !important;
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #app-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+        }
+
+        /* --- STREAMER HUD DASHBOARD PANEL (Viewer OBS Mode - Clean) --- */
+        .streamer-dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 30px;
+            padding: 15px 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 11, 24, 0.85);
+            box-shadow: var(--card-shadow), inset 0 0 15px rgba(255, 255, 255, 0.01);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            width: 90%;
+            max-width: 750px;
+            margin: 0 auto;
+        }
+
+        .streamer-left {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .live-badge-wrapper {
+            display: flex;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            background: #ff4757;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ff4757;
+            animation: pulseLive 1.2s infinite alternate;
+            margin-right: 8px;
+        }
+
+        @keyframes pulseLive {
+            from { transform: scale(0.85); opacity: 0.5; }
+            to { transform: scale(1.18); opacity: 1; }
+        }
+
+        .live-text {
+            color: var(--accent-primary);
+            text-transform: uppercase;
+        }
+
+        .stream-timer-display {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .time-block {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .time-val {
+            font-size: 32px;
+            font-weight: 900;
+            font-family: 'Consolas', monospace;
+            line-height: 1;
+            letter-spacing: 1px;
+        }
+
+        #stream-time {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 15px rgba(0, 210, 211, 0.35);
+        }
+
+        #countdown-time {
+            color: var(--accent-secondary);
+            text-shadow: 0 0 15px rgba(251, 197, 49, 0.35);
+        }
+
+        .time-lbl {
+            font-size: 9px;
+            color: var(--text-secondary);
+            font-weight: 700;
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .time-divider {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--text-secondary);
+            opacity: 0.4;
+            margin-top: -10px;
+        }
+
+        /* Timeline checkpoints */
+        .streamer-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .timeline-title {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .timeline-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 8px 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            top: 20px; left: 0; right: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            z-index: 1;
+            border-radius: 4px;
+        }
+
+        .checkpoint {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .cp-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #111224;
+            border: 3px solid #2f3152;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cp-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        /* Checkpoint States */
+        .checkpoint.completed .cp-dot {
+            background: var(--accent-green);
+            border-color: rgba(46, 213, 115, 0.3);
+            box-shadow: 0 0 10px var(--accent-green);
+        }
+
+        .checkpoint.completed .cp-label {
+            color: var(--accent-green);
+        }
+
+        @keyframes activeRadar {
+            0% { box-shadow: 0 0 8px var(--accent-secondary), 0 0 0 0px rgba(251, 197, 49, 0.4); }
+            100% { box-shadow: 0 0 18px var(--accent-secondary), 0 0 0 10px rgba(251, 197, 49, 0); }
+        }
+
+        .checkpoint.active .cp-dot {
+            background: var(--accent-secondary);
+            border-color: #ffffff;
+            animation: activeRadar 1.5s infinite ease-in-out;
+        }
+
+        .checkpoint.active .cp-label {
+            color: var(--accent-secondary);
+            text-shadow: 0 0 8px rgba(251, 197, 49, 0.4);
+        }
+
+        /* 2-Column Layout for OBS (Wheel in Center/Left, History on Right) */
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            width: 100%;
+            max-width: 900px;
+            margin: 15px auto 0 auto;
+            align-items: center;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .streamer-dashboard {
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Efek merampingkan elemen agar pas di layar jika papan transparansi menyala (Tanpa merusak posisi vertikal) */
+        body.transparency-open .wheel-outer-ring {
+            transform: scale(0.92);
+        }
+
+        body.transparency-open .streamer-dashboard {
+            transform: scale(0.96);
+        }
+
+        /* Sangat responsif jika dibuka di HP / Layar kecil */
+        @media (max-width: 768px) {
+            #app-wrapper {
+                gap: 10px;
+                padding: 5px;
+            }
+            .streamer-dashboard {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+                padding: 10px 15px !important;
+                width: 95% !important;
+                max-width: 420px;
+                margin: 0 auto;
+                text-align: center;
+            }
+            .streamer-left {
+                align-items: center;
+            }
+            .stream-timer-display {
+                gap: 12px;
+                justify-content: center;
+            }
+            .time-val {
+                font-size: 26px !important;
+            }
+            .time-divider {
+                font-size: 22px !important;
+                margin-top: -6px !important;
+            }
+            .checkpoint .cp-dot {
+                width: 9px !important;
+                height: 9px !important;
+                border-width: 2px !important;
+            }
+            .checkpoint .cp-label {
+                font-size: 8px !important;
+                margin-top: 3px !important;
+            }
+            .timeline-line {
+                top: 15px !important;
+                height: 3px !important;
+            }
+            .timeline-title {
+                font-size: 9px !important;
+            }
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                margin-top: 5px;
+            }
+            body.transparency-open .wheel-outer-ring {
+                transform: scale(0.92);
+            }
+            body.transparency-open .streamer-dashboard {
+                transform: scale(0.96);
+            }
+            .glass-panel {
+                padding: 10px 15px !important;
+                gap: 8px !important;
+                max-width: 320px;
+                margin: 0 auto;
+            }
+            .panel-title {
+                font-size: 13px !important;
+                padding-bottom: 4px !important;
+            }
+            .history-list {
+                max-height: 80px !important;
+                gap: 6px !important;
+            }
+            .history-item {
+                padding: 6px 10px !important;
+                font-size: 11px !important;
+                border-radius: 8px !important;
+            }
+            .wheel-outer-ring {
+                width: 290px;
+                height: 290px;
+                border-width: 5px !important;
+            }
+            canvas {
+                width: 275px !important;
+                height: 275px !important;
+            }
+            #transparency-board {
+                width: 100%;
+                max-width: 420px;
+                margin: 0 auto;
+                padding: 0 14px;
+            }
+            #transparency-board.visible {
+                max-height: 450px;
+                padding: 10px 14px;
+            }
+            .tb-header {
+                flex-direction: column !important;
+                gap: 6px !important;
+                align-items: center !important;
+                text-align: center;
+            }
+            .tb-title-container {
+                flex-direction: column !important;
+                gap: 4px !important;
+                align-items: center !important;
+            }
+            .tb-title {
+                font-size: 11px !important;
+                text-align: center;
+            }
+            .tb-formula-lbl {
+                font-size: 8px !important;
+            }
+            .tb-matrix-container {
+                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+                max-height: 80px;
+            }
+            .tb-row-item {
+                padding: 6px 8px !important;
+                gap: 4px !important;
+            }
+            .tb-viewer-name {
+                font-size: 10px !important;
+            }
+            .tb-viewer-prob {
+                font-size: 8px !important;
+            }
+            .tb-footer-clause {
+                flex-direction: column !important;
+                gap: 4px !important;
+                text-align: center;
+                font-size: 8px !important;
+            }
+        }
+
+        /* Panel Glassmorphism */
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .panel-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--accent-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Center Panel - Spin Wheel Machine */
+        .center-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- WHEEL CONTAINER REAKTOR BULAT SEMPURNA DENGAN CSS SHADOW BERLAPIS --- */
+        .wheel-outer-ring {
+            position: relative;
+            width: 440px;
+            height: 440px;
+            background: radial-gradient(circle, rgba(24, 25, 48, 0.95) 0%, rgba(7, 8, 18, 0.98) 100%);
+            border-radius: 50%;
+            border: 8px solid rgba(255, 255, 255, 0.05);
+            /* Bayangan bulat sempurna (Anti-Oval) */
+            box-shadow: 
+                0 0 35px rgba(0, 0, 0, 0.85),
+                0 0 20px rgba(255, 118, 117, 0.12),
+                inset 0 0 35px rgba(255, 255, 255, 0.02);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: visible;
+        }
+
+        .wheel-outer-ring.spinning {
+            border-color: var(--accent-secondary);
+            box-shadow: 
+                0 0 55px rgba(251, 197, 49, 0.65),
+                0 0 25px rgba(251, 197, 49, 0.3),
+                inset 0 0 40px rgba(255, 255, 255, 0.04);
+        }
+
+        .wheel-outer-ring::after {
+            content: '';
+            position: absolute;
+            top: -14px; left: -14px; right: -14px; bottom: -14px;
+            border-radius: 50%;
+            border: 2px dashed rgba(255, 118, 117, 0.22);
+            animation: rotateDashed 90s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rotateDashed {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        canvas {
+            display: block;
+            z-index: 5;
+            border-radius: 50%;
+        }
+
+        /* --- RIWAYAT PEMENANG KAPSUL MAHKOTA EMAS --- */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .history-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .history-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .history-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: linear-gradient(90deg, rgba(46, 213, 115, 0.08) 0%, rgba(46, 213, 115, 0.02) 100%);
+            border: 1px solid rgba(46, 213, 115, 0.18);
+            border-radius: 12px;
+            font-size: 13px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(8px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .history-name {
+            font-weight: 800;
+            color: var(--accent-green);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-shadow: 0 0 10px rgba(46, 213, 115, 0.25);
+        }
+
+        .history-crown {
+            font-size: 14px;
+            filter: drop-shadow(0 0 5px rgba(251, 197, 49, 0.5));
+        }
+
+        .empty-state {
+            color: var(--text-secondary);
+            font-size: 11px;
+            text-align: center;
+            padding: 12px 0;
+            font-style: italic;
+        }
+
+        /* Winner Overlay */
+        #winner-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(3, 4, 8, 0.94);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(12px);
+        }
+
+        .winner-card {
+            background: linear-gradient(145deg, #121327 0%, #060712 100%);
+            border: 2px solid var(--accent-secondary);
+            border-radius: 28px;
+            padding: 40px;
+            width: 90%;
+            max-width: 440px;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(251, 197, 49, 0.55);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+            position: relative;
+        }
+
+        .winner-card::before {
+            content: '👑';
+            font-size: 50px;
+            position: absolute;
+            top: -40px;
+            filter: drop-shadow(0 0 10px rgba(251,197,49,0.6));
+        }
+
+        .winner-title {
+            color: var(--accent-green);
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-family: 'Outfit', sans-serif;
+            text-shadow: 0 0 15px rgba(46, 213, 115, 0.3);
+        }
+
+        .winner-avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            font-weight: 800;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            border: 4px solid #ffffff;
+            margin: 10px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .winner-name-txt {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--text-primary);
+            text-shadow: 0 0 20px rgba(255,255,255,0.2);
+            word-break: break-word;
+        }
+
+        .winner-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .btn-overlay-close {
+            padding: 14px 40px;
+            background: linear-gradient(135deg, var(--accent-green) 0%, #22aa57 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(46, 213, 115, 0.25);
+            transition: 0.2s;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-overlay-close:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(46, 213, 115, 0.5);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.65); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        #transparency-board {
+            width: 90%;
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(8, 9, 21, 0.94);
+            border-radius: 20px;
+            box-shadow: 
+                0 15px 40px rgba(0, 0, 0, 0.8),
+                0 0 25px rgba(46, 213, 115, 0.15),
+                inset 0 0 15px rgba(46, 213, 115, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            
+            /* Sifat Kolaps Organik Flexbox */
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            padding: 0 22px;
+            border: 0px solid transparent;
+            margin-top: 0;
+            transition: 
+                max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                opacity 0.4s ease, 
+                padding 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                border 0.5s ease,
+                margin-top 0.5s ease;
+        }
+
+        #transparency-board.visible {
+            max-height: 280px;
+            opacity: 1;
+            padding: 15px 22px;
+            border: 1.5px solid var(--accent-green);
+            margin-top: 10px;
+        }
+
+        .tb-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            padding-bottom: 8px;
+        }
+
+        .tb-title-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tb-badge {
+            background: rgba(46, 213, 115, 0.1);
+            border: 1px solid rgba(46, 213, 115, 0.3);
+            color: var(--accent-green);
+            font-size: 9px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            text-shadow: 0 0 8px rgba(46, 213, 115, 0.3);
+        }
+
+        .tb-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: var(--text-primary);
+            text-transform: uppercase;
+        }
+
+        .tb-formula-lbl {
+            font-size: 10px;
+            color: var(--text-secondary);
+            font-family: 'Consolas', monospace;
+        }
+
+        /* Grid matrix of viewer checkpoints */
+        .tb-matrix-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 8px;
+            max-height: 110px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        /* Scrollbar custom for transparency board */
+        .tb-matrix-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .tb-matrix-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .tb-matrix-container::-webkit-scrollbar-thumb {
+            background: rgba(46, 213, 115, 0.2);
+            border-radius: 2px;
+        }
+
+        .tb-row-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: 0.2s;
+        }
+
+        .tb-row-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tb-viewer-name {
+            font-weight: 800;
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 80px;
+        }
+
+        .tb-viewer-prob {
+            font-size: 9px;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .tb-cp-grid {
+            display: flex;
+            gap: 3px;
+        }
+
+        .tb-cp-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #111224;
+            border: 1px solid #2f3152;
+            transition: 0.2s;
+        }
+
+        .tb-cp-dot.active {
+            background: var(--accent-green) !important;
+            border-color: #ffffff;
+            box-shadow: 0 0 6px var(--accent-green);
+        }
+
+        .tb-footer-clause {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 9px;
+            color: var(--text-secondary);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 6px;
+        }
+
+        #confettiCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 1001;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas Khusus Konfeti Selebrasi -->
+    <canvas id="confettiCanvas"></canvas>
+
+    <div id="app-wrapper">
+        <!-- STREAMER HUD PANEL -->
+        <div class="streamer-dashboard">
+            <div class="streamer-left">
+                <div class="live-badge-wrapper">
+                    <span class="live-indicator"></span>
+                    <span class="live-text">● LIVE ABSEN PENONTON</span>
+                </div>
+                <div class="stream-timer-display">
+                    <div class="time-block">
+                        <span class="time-val" id="stream-time">00:00</span>
+                        <span class="time-lbl">LAMA LIVE</span>
+                    </div>
+                    <div class="time-divider">:</div>
+                    <div class="time-block">
+                        <span class="time-val" id="countdown-time">15:00</span>
+                        <span class="time-lbl">ABSEN SELANJUTNYA</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="streamer-right">
+                <div class="timeline-title">Jadwal Waktu Absen (0 - 90 Menit)</div>
+                <div class="timeline-wrapper">
+                    <div class="timeline-line"></div>
+                    <div class="checkpoint active" id="cp-0">
+                        <div class="cp-dot"></div>
+                        <div class="cp-label">0m</div>
+                    </div>
+                    <div class="checkpoint" id="cp-15">
+                        <div class="cp-dot"></div>
+                        <div class="cp-label">15m</div>
+                    </div>
+                    <div class="checkpoint" id="cp-30">
+                        <div class="cp-dot"></div>
+                        <div class="cp-label">30m</div>
+                    </div>
+                    <div class="checkpoint" id="cp-45">
+                        <div class="cp-dot"></div>
+                        <div class="cp-label">45m</div>
+                    </div>
+                    <div class="checkpoint" id="cp-60">
+                        <div class="cp-dot"></div>
+                        <div class="cp-label">60m</div>
+                    </div>
+                    <div class="checkpoint" id="cp-75">
+                        <div class="cp-dot"></div>
+                        <div class="cp-label">75m</div>
+                    </div>
+                    <div class="checkpoint" id="cp-90">
+                        <div class="cp-dot"></div>
+                        <div class="cp-label">Ganti Streamer</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-container">
+            <!-- Center Column: Spin Wheel Canvas -->
+            <div class="center-panel">
+                <div class="wheel-outer-ring" id="wheel-rim">
+                    <canvas id="gachaCanvas" width="420" height="420"></canvas>
+                </div>
+            </div>
+
+            <!-- Right Column: Winner History -->
+            <div class="glass-panel">
+                <div>
+                    <div class="panel-title">Riwayat Pemenang</div>
+                    <div id="history-list" class="history-list">
+                        <div class="empty-state">Belum ada pemenang terpilih.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Papan Transparansi (Bukti Absen & Peluang Menang) -->
+        <div id="transparency-board" class="visible">
+            <div class="tb-header">
+                <div class="tb-title-container">
+                    <span class="tb-badge" style="background: rgba(46, 213, 115, 0.15); border-color: var(--accent-green); color: var(--accent-green);">100% JUJUR</span>
+                    <span class="tb-title">Papan Keaktifan & Bukti Peluang Adil</span>
+                </div>
+                <span class="tb-formula-lbl">Peluang Menang = (Poin Kamu / Total Poin Semua) × 100%</span>
+            </div>
+            
+            <!-- Grid Matrix untuk Kehadiran Penonton -->
+            <div class="tb-matrix-container" id="obs-transparency-matrix">
+                <div class="empty-state">Belum ada penonton yang diabsen.</div>
+            </div>
+
+            <div class="tb-footer-clause">
+                <span>🛡️ SISTEM ACAK KOMPUTER OTOMATIS - BEBAS SETTINGAN DAN REKAYASA</span>
+                <span style="font-family: monospace;" id="obs-tb-total-lbl">TOTAL PENONTON: 0 | TOTAL POIN: 0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Pemenang Overlay -->
+    <div id="winner-overlay">
+        <div class="winner-card">
+            <div class="winner-title">INI DIA PEMENANGNYA!</div>
+            <div id="winner-avatar" class="winner-avatar">N</div>
+            <div id="winner-name" class="winner-name-txt">Nama Pemenang</div>
+            <p>Selamat! Menang undian adil berdasarkan poin keaktifan.</p>
+            <button class="btn-overlay-close" onclick="closeWinnerOverlay()">TUTUP</button>
+        </div>
+    </div>
+
+    <!-- PUSTAKA WEBSOCKET (Socket.io-client bawaan server) -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        // --- SYNTHESIZED SOUND EFFECTS ENGINE (Web Audio API) ---
+        const audioSynth = {
+            ctx: null,
+            enabled: true,
+            
+            init() {
+                if (this.ctx) return;
+                try {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch(e) {
+                    console.warn("Web Audio API not supported", e);
+                }
+            },
+            
+            playTick() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+                
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(550, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.035);
+                
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.035);
+                
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.04);
+            },
+            
+            playWin() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+                
+                const now = this.ctx.currentTime;
+                const scale = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+                
+                scale.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+                    
+                    gain.gain.setValueAtTime(0.1, now + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+                    
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.45);
+                });
+            },
+
+            playBuzzer() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                
+                const now = this.ctx.currentTime;
+                const osc1 = this.ctx.createOscillator();
+                const osc2 = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc1.type = 'sawtooth';
+                osc1.frequency.setValueAtTime(520, now);
+                osc1.frequency.linearRampToValueAtTime(800, now + 0.15);
+                osc1.frequency.linearRampToValueAtTime(520, now + 0.3);
+                
+                osc2.type = 'square';
+                osc2.frequency.setValueAtTime(524, now);
+                osc2.frequency.linearRampToValueAtTime(804, now + 0.15);
+                osc2.frequency.linearRampToValueAtTime(524, now + 0.3);
+                
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.setValueAtTime(0.12, now + 0.3);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+                
+                osc1.start(now);
+                osc2.start(now);
+                osc1.stop(now + 0.5);
+                osc2.stop(now + 0.5);
+            }
+        };
+
+        // --- BACKGROUND CONFETTI PARTY SYSTEM ---
+        class ConfettiParticle {
+            constructor(w, h) {
+                this.w = w; this.h = h;
+                this.x = Math.random() * w;
+                this.y = Math.random() * -h - 20;
+                this.size = Math.random() * 8 + 6;
+                this.color = `hsl(${Math.random() * 360}, 90%, 60%)`;
+                this.speedX = Math.random() * 4 - 2;
+                this.speedY = Math.random() * 6 + 4;
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = Math.random() * 6 - 3;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.rotation += this.rotationSpeed;
+                if (this.y > this.h) {
+                    this.y = -20;
+                    this.x = Math.random() * this.w;
+                }
+            }
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation * Math.PI / 180);
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        let confettiActive = false;
+        let confettiParticles = [];
+        const confettiCanvas = document.getElementById('confettiCanvas');
+        const confettiCtx = confettiCanvas.getContext('2d');
+
+        function resizeConfetti() {
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeConfetti);
+
+        function startConfetti() {
+            confettiActive = true;
+            confettiParticles = [];
+            resizeConfetti();
+            for (let i = 0; i < 140; i++) {
+                confettiParticles.push(new ConfettiParticle(confettiCanvas.width, confettiCanvas.height));
+            }
+        }
+
+        function stopConfetti() {
+            confettiActive = false;
+            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        }
+
+        function updateConfettiLoop() {
+            if (!confettiActive) return;
+            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            confettiParticles.forEach(p => {
+                p.update();
+                p.draw(confettiCtx);
+            });
+            requestAnimationFrame(updateConfettiLoop);
+        }
+
+        // --- MAIN SPIN WHEEL CORE ENGINE ---
+        const canvas = document.getElementById('gachaCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        const wheelRadius = 180;
+        
+        let participants = [];
+        let angle = 0;
+        let angularVelocity = 0;
+        let isSpinning = false;
+        let isContinuous = false;
+        let isStopping = false;
+        let lastSelectedIdx = -1;
+        let pointerWiggle = 0;
+        let pointerWiggleDir = 1;
+        const drag = 0.984;
+
+        let decelFrame = 0;
+        let decelTotalFrames = 240; // 4 detik pelambatan 100% identik
+        let startAngleOfDecel = 0;
+        let totalDistOfDecel = 0;
+        let targetWinnerIdx = -1;
+        let currentWinner = null;
+
+        // --- DRAWING ---
+        function drawWheel() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (participants.length === 0) return;
+
+            // 1. Juring Roda
+            participants.forEach((p, idx) => {
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                const sa = p.startAngle + angle;
+                const ea = p.endAngle + angle;
+                ctx.arc(cx, cy, wheelRadius - 4, sa, ea);
+                ctx.closePath();
+                ctx.fillStyle = p.color;
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(9, 10, 16, 0.3)';
+                ctx.lineWidth = 1.2;
+                ctx.stroke();
+                
+                // Label Nama
+                const midAngle = sa + (ea - sa) / 2;
+                const arcLength = (ea - sa) * wheelRadius;
+                
+                if (arcLength > 15) {
+                    ctx.save();
+                    ctx.translate(cx, cy);
+                    ctx.rotate(midAngle);
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = '#ffffff';
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
+                    ctx.shadowBlur = 3;
+                    
+                    let fontSize = Math.min(14, Math.max(9, Math.floor(arcLength / 6.5)));
+                    ctx.font = `bold ${fontSize}px 'Plus Jakarta Sans', sans-serif`;
+                    let nameDisplay = p.name;
+                    if (nameDisplay.length > 12) nameDisplay = nameDisplay.substring(0, 10) + '..';
+                    ctx.fillText(nameDisplay, wheelRadius - 26, 0);
+                    ctx.restore();
+                }
+                ctx.restore();
+            });
+
+            // 2. Pins 3D
+            participants.forEach((p) => {
+                const sa = p.startAngle + angle;
+                const pinX = cx + Math.cos(sa) * (wheelRadius - 8);
+                const pinY = cy + Math.sin(sa) * (wheelRadius - 8);
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(pinX, pinY, 3.5, 0, Math.PI * 2);
+                const pinGrad = ctx.createRadialGradient(pinX - 0.8, pinY - 0.8, 0.5, pinX, pinY, 3.5);
+                pinGrad.addColorStop(0, '#ffffff');
+                pinGrad.addColorStop(0.3, '#d1d8e0');
+                pinGrad.addColorStop(1, '#4b6584');
+                ctx.fillStyle = pinGrad;
+                ctx.shadowColor = 'rgba(0,0,0,0.4)';
+                ctx.shadowBlur = 2;
+                ctx.fill();
+                ctx.restore();
+            });
+
+            // 3. LED Bingkai
+            const numLeds = 24;
+            const ledFlashRate = isSpinning ? 80 : 250;
+            const flashIndex = Math.floor(Date.now() / ledFlashRate) % 2;
+            for (let i = 0; i < numLeds; i++) {
+                const ledRot = isSpinning ? angle * 0.12 : 0;
+                const ledAngle = (i * 2 * Math.PI / numLeds) + ledRot;
+                const ledX = cx + Math.cos(ledAngle) * (wheelRadius + 6);
+                const ledY = cy + Math.sin(ledAngle) * (wheelRadius + 6);
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(ledX, ledY, 2.5, 0, Math.PI * 2);
+                if ((i + flashIndex) % 2 === 0) {
+                    ctx.fillStyle = '#ff7675';
+                    ctx.shadowColor = '#ff7675';
+                    ctx.shadowBlur = 6;
+                } else {
+                    ctx.fillStyle = '#fbc531';
+                    ctx.shadowColor = '#fbc531';
+                    ctx.shadowBlur = 6;
+                }
+                ctx.fill();
+                ctx.restore();
+            }
+
+            // 4. Pointer Wiggle
+            ctx.save();
+            ctx.translate(cx, cy - wheelRadius - 2);
+            pointerWiggle *= 0.84;
+            if (Math.abs(pointerWiggle) < 0.1) pointerWiggle = 0;
+            ctx.rotate(pointerWiggleDir * (pointerWiggle * Math.PI / 180));
+            ctx.beginPath();
+            ctx.moveTo(-12, -10);
+            ctx.lineTo(12, -10);
+            ctx.lineTo(0, 22);
+            ctx.closePath();
+            const ptrGrad = ctx.createLinearGradient(0, -10, 0, 22);
+            ptrGrad.addColorStop(0, '#ff7675');
+            ptrGrad.addColorStop(1, '#ff4757');
+            ctx.fillStyle = ptrGrad;
+            ctx.shadowColor = '#ff4757';
+            ctx.shadowBlur = 8;
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(0, -5, 3, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+            ctx.restore();
+
+            // 5. Center Cap
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx, cy, 30, 0, Math.PI * 2);
+            const capGrad = ctx.createRadialGradient(cx - 3, cy - 3, 3, cx, cy, 30);
+            capGrad.addColorStop(0, '#2d3436');
+            capGrad.addColorStop(1, '#090a10');
+            ctx.fillStyle = capGrad;
+            ctx.strokeStyle = isSpinning ? 'var(--accent-secondary)' : 'var(--accent-primary)';
+            ctx.lineWidth = 3;
+            ctx.shadowColor = isSpinning ? 'var(--accent-secondary)' : 'var(--accent-primary)';
+            ctx.shadowBlur = 10;
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#ffffff';
+            ctx.font = "800 10px 'Plus Jakarta Sans', sans-serif";
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowBlur = 0;
+            ctx.fillText("KAEL", cx, cy);
+            ctx.restore();
+        }
+
+        // --- UPDATE LOOP FISIKA RODA SINKRON ---
+        function updateWheelPhysics() {
+            if (!isSpinning) {
+                drawWheel();
+                requestAnimationFrame(updateWheelPhysics);
+                return;
+            }
+
+            if (isStopping) {
+                decelFrame++;
+                let t = decelFrame / decelTotalFrames;
+                if (t >= 1) {
+                    t = 1;
+                    isSpinning = false;
+                    isStopping = false;
+                    angularVelocity = 0;
+                    
+                    document.getElementById('wheel-rim').classList.remove('spinning');
+                    
+                    // Laporkan ke server bahwa roda berhenti melambat secara sempurna
+                    // (Server yang akan memasukkan ke riwayat & siar winner_declared)
+                    socket.emit('wheel:stop_complete', targetWinnerIdx);
+                } else {
+                    let ease = 1 - Math.pow(1 - t, 3); // Cubic Ease Out
+                    angle = startAngleOfDecel + ease * totalDistOfDecel;
+                    angularVelocity = (3 * Math.pow(1 - t, 2) * totalDistOfDecel) / decelTotalFrames;
+                }
+            } else {
+                angle += angularVelocity;
+                if (!isContinuous) {
+                    angularVelocity *= drag;
+                }
+            }
+
+            // Ticking jarum
+            let localPointerAngle = (Math.PI * 1.5 - angle) % (2 * Math.PI);
+            if (localPointerAngle < 0) localPointerAngle += 2 * Math.PI;
+
+            let activeIdx = -1;
+            for (let i = 0; i < participants.length; i++) {
+                if (localPointerAngle >= participants[i].startAngle && localPointerAngle < participants[i].endAngle) {
+                    activeIdx = i;
+                    break;
+                }
+            }
+
+            if (activeIdx !== lastSelectedIdx && lastSelectedIdx !== -1) {
+                audioSynth.playTick();
+                pointerWiggle = Math.min(22, angularVelocity * 90);
+                pointerWiggleDir = angularVelocity > 0 ? 1 : -1;
+            }
+            lastSelectedIdx = activeIdx;
+
+            drawWheel();
+            requestAnimationFrame(updateWheelPhysics);
+        }
+
+        function stopWheel(winnerIdx) {
+            isContinuous = false;
+            isStopping = true;
+            decelFrame = 0;
+            targetWinnerIdx = winnerIdx;
+            
+            const p = participants[winnerIdx];
+            let midAngle_W = (p.startAngle + p.endAngle) / 2;
+            let targetStopAngle = Math.PI * 1.5 - midAngle_W;
+            
+            let currentMod = angle % (2 * Math.PI);
+            let targetMod = targetStopAngle % (2 * Math.PI);
+            if (targetMod < 0) targetMod += 2 * Math.PI;
+            
+            let diff = targetMod - currentMod;
+            if (diff < 0) diff += 2 * Math.PI;
+            
+            startAngleOfDecel = angle;
+            totalDistOfDecel = diff + (4 * 2 * Math.PI); // Berputar 4 putaran lagi
+        }
+
+        // --- DEKLARASI PEMENANG & SELEBRASI ---
+        function declareWinner(winner) {
+            currentWinner = winner;
+            audioSynth.playWin();
+            startConfetti();
+            updateConfettiLoop();
+
+            const avatar = document.getElementById('winner-avatar');
+            avatar.style.backgroundColor = winner.color;
+            avatar.innerText = winner.name.substring(0, 1).toUpperCase();
+            
+            document.getElementById('winner-name').innerText = winner.name;
+            
+            setTimeout(() => {
+                document.getElementById('winner-overlay').style.display = 'flex';
+            }, 600);
+        }
+
+        function closeWinnerOverlay() {
+            socket.emit('admin:dismiss_winner');
+        }
+
+        // --- UPDATE UI RIWAYAT ---
+        function updateHistoryUI(winnersHistory) {
+            const hList = document.getElementById('history-list');
+            hList.innerHTML = '';
+            
+            if (winnersHistory.length === 0) {
+                hList.innerHTML = '<div class="empty-state">Belum ada pemenang terpilih.</div>';
+                return;
+            }
+
+            winnersHistory.forEach((name) => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerHTML = `<span class="history-name"><span class="history-crown">👑</span> ${name}</span>`;
+                hList.appendChild(item);
+            });
+        }
+
+        // --- UPDATE TIMER DISPLAY ---
+        function updateTimerUI(timerState) {
+            const streamMin = Math.floor(timerState.streamElapsedSeconds / 60);
+            const streamSec = timerState.streamElapsedSeconds % 60;
+            document.getElementById('stream-time').innerText = 
+                `${streamMin.toString().padStart(2, '0')}:${streamSec.toString().padStart(2, '0')}`;
+            
+            const countdownMin = Math.floor(timerState.nextAbsenSeconds / 60);
+            const countdownSec = timerState.nextAbsenSeconds % 60;
+            document.getElementById('countdown-time').innerText = 
+                `${countdownMin.toString().padStart(2, '0')}:${countdownSec.toString().padStart(2, '0')}`;
+            
+            // Sync Checkpoint aktif
+            const checkpoints = [0, 15, 30, 45, 60, 75, 90];
+            checkpoints.forEach(cp => {
+                const element = document.getElementById(`cp-${cp}`);
+                if (!element) return;
+                element.classList.remove('active', 'completed');
+                if (cp < timerState.currentCheckpoint) {
+                    element.classList.add('completed');
+                } else if (cp === timerState.currentCheckpoint) {
+                    element.classList.add('active');
+                }
+            });
+        }
+
+        // --- WEBSOCKET SOCKET.IO SINKRONISASI ---
+        socket.on('init', (data) => {
+            participants = data.participants;
+            updateHistoryUI(data.winnersHistory);
+            updateTimerUI(data.timerState);
+            drawWheel();
+            
+            // Sinkronkan visibilitas papan transparansi
+            const board = document.getElementById('transparency-board');
+            if (data.showTransparency !== false) {
+                board.classList.add('visible');
+                document.body.classList.add('transparency-open');
+            } else {
+                board.classList.remove('visible');
+                document.body.classList.remove('transparency-open');
+            }
+            updateTransparencyMatrix(data.participants, data.totalWeight);
+            
+            if (data.spinState.isSpinning) {
+                isSpinning = true;
+                isContinuous = data.spinState.isContinuous;
+                isStopping = data.spinState.isStopping;
+                angularVelocity = data.spinState.angularVelocity;
+                document.getElementById('wheel-rim').classList.add('spinning');
+                if (isStopping) {
+                    stopWheel(data.spinState.winnerIdx);
+                }
+            }
+
+            if (data.currentWinner) {
+                declareWinner(data.currentWinner);
+            }
+        });
+
+        socket.on('state:participants', (data) => {
+            participants = data.participants;
+            drawWheel();
+            updateTransparencyMatrix(data.participants, data.totalWeight);
+        });
+
+        socket.on('state:spin', (spinState) => {
+            audioSynth.init();
+            isSpinning = true;
+            isContinuous = true;
+            isStopping = false;
+            angularVelocity = spinState.angularVelocity;
+            document.getElementById('wheel-rim').classList.add('spinning');
+            closeWinnerOverlay();
+        });
+
+        socket.on('state:stop', (spinState) => {
+            stopWheel(spinState.winnerIdx);
+        });
+
+        socket.on('state:winner_declared', (data) => {
+            updateHistoryUI(data.winnersHistory);
+            declareWinner(data.winner);
+        });
+
+        socket.on('state:timer', (timerState) => {
+            updateTimerUI(timerState);
+        });
+
+        socket.on('state:history_cleared', (data) => {
+            updateHistoryUI(data.winnersHistory);
+        });
+
+        socket.on('state:history_updated', (data) => {
+            updateHistoryUI(data.winnersHistory);
+        });
+
+        socket.on('state:winner_dismissed', () => {
+            document.getElementById('winner-overlay').style.display = 'none';
+            stopConfetti();
+            currentWinner = null;
+        });
+
+        socket.on('timer:alarm', () => {
+            audioSynth.playBuzzer();
+            const panel = document.querySelector('.streamer-dashboard');
+            panel.style.borderColor = 'var(--accent-secondary)';
+            panel.style.boxShadow = '0 0 30px rgba(251, 197, 49, 0.4)';
+            setTimeout(() => {
+                panel.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                panel.style.boxShadow = 'var(--card-shadow)';
+            }, 3000);
+        });
+
+        socket.on('timer:handover', () => {
+            audioSynth.playBuzzer();
+            alert("⏰ LIVESTREAM 90 MENIT SELESAI!\nSaatnya serah terima live streaming ke streamer berikutnya!");
+        });
+
+        socket.on('state:transparency', (show) => {
+            const board = document.getElementById('transparency-board');
+            if (show) {
+                board.classList.add('visible');
+                document.body.classList.add('transparency-open');
+            } else {
+                board.classList.remove('visible');
+                document.body.classList.remove('transparency-open');
+            }
+        });
+
+        // --- RENDER MATRIX PAPAN TRANSPARANSI (ANTI-MANIPULASI) ---
+        function updateTransparencyMatrix(parts, totalW) {
+            const matrix = document.getElementById('obs-transparency-matrix');
+            matrix.innerHTML = '';
+            
+            if (!parts || parts.length === 0) {
+                matrix.innerHTML = '<div class="empty-state">Belum ada penonton yang diabsen.</div>';
+                document.getElementById('obs-tb-total-lbl').innerText = "TOTAL PENONTON: 0 | TOTAL POIN: 0";
+                return;
+            }
+            
+            parts.forEach(p => {
+                const percentage = ((p.weight / totalW) * 100).toFixed(1);
+                const row = document.createElement('div');
+                row.className = 'tb-row-item';
+                
+                let dotsHtml = '';
+                for (let i = 0; i < 6; i++) {
+                    const activeClass = p.checkpoints[i] ? 'active' : '';
+                    dotsHtml += `<span class="tb-cp-dot ${activeClass}"></span>`;
+                }
+                
+                row.innerHTML = `
+                    <div class="tb-row-top">
+                        <span class="tb-viewer-name" style="color: ${p.color};">👤 ${p.name}</span>
+                        <span class="tb-viewer-prob" style="color: ${p.color};">${percentage}%</span>
+                    </div>
+                    <div class="tb-cp-grid">
+                        ${dotsHtml}
+                    </div>
+                `;
+                matrix.appendChild(row);
+            });
+            
+            document.getElementById('obs-tb-total-lbl').innerText = 
+                `TOTAL PESERTA: ${parts.length} | TOTAL BOBOT: ${totalW}`;
+        }
+
+        // Loop utama fisika
+        updateWheelPhysics();
+    </script>
+</body>
+</html>

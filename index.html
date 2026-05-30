@@ -1,0 +1,2166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kael Spin Wheel - Streamer Pro Edition</title>
+    <!-- Google Fonts: Outfit untuk E-sports Header & Plus Jakarta Sans untuk UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #030408;
+            --bg-gradient: radial-gradient(circle at center, #0e0f22 0%, #030408 100%);
+            --panel-bg: rgba(8, 9, 21, 0.75);
+            --border-color: rgba(255, 255, 255, 0.07);
+            --text-primary: #f5f6fa;
+            --text-secondary: #7f8fa6;
+            --accent-primary: #ff7675;
+            --accent-secondary: #fbc531;
+            --accent-green: #2ed573;
+            --accent-cyan: #00d2d3;
+            --accent-purple: #a55eea;
+            --card-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 30px 15px;
+            position: relative;
+        }
+
+        /* --- DYNAMIC FLOATING AURORA GLOWS (Latar Belakang Hidup) --- */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -15%; left: -15%; width: 50%; height: 50%;
+            background: radial-gradient(circle, rgba(255, 118, 117, 0.12) 0%, transparent 70%);
+            z-index: -2;
+            pointer-events: none;
+            filter: blur(90px);
+            animation: floatGlowLeft 22s infinite alternate ease-in-out;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -15%; right: -15%; width: 50%; height: 50%;
+            background: radial-gradient(circle, rgba(0, 210, 211, 0.12) 0%, transparent 70%);
+            z-index: -2;
+            pointer-events: none;
+            filter: blur(90px);
+            animation: floatGlowRight 22s infinite alternate ease-in-out;
+        }
+
+        @keyframes floatGlowLeft {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(8%, 12%) scale(1.15); }
+        }
+
+        @keyframes floatGlowRight {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-8%, -12%) scale(1.15); }
+        }
+
+        /* Efek Grid Kosmik Statis di Latar Belakang */
+        .cosmic-grid {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.006) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.006) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        #app-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            z-index: 10;
+        }
+
+        /* Header Styling */
+        header {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-title-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sys-badge {
+            background: rgba(255, 118, 117, 0.07);
+            border: 1px solid rgba(255, 118, 117, 0.2);
+            color: var(--accent-primary);
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-family: 'Outfit', sans-serif;
+            text-shadow: 0 0 10px rgba(255, 118, 117, 0.3);
+        }
+
+        header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 38px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 118, 117, 0.15);
+            text-transform: uppercase;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        /* --- STREAMER HUD DASHBOARD PANEL --- */
+        .streamer-dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 30px;
+            padding: 24px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 11, 24, 0.85);
+            box-shadow: var(--card-shadow), inset 0 0 20px rgba(255, 255, 255, 0.01);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 850px) {
+            .streamer-dashboard {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+        }
+
+        .streamer-left {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .live-badge-wrapper {
+            display: flex;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #ff4757;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #ff4757;
+            animation: pulseLive 1.2s infinite alternate;
+            margin-right: 8px;
+        }
+
+        @keyframes pulseLive {
+            from { transform: scale(0.85); opacity: 0.5; }
+            to { transform: scale(1.2); opacity: 1; }
+        }
+
+        .live-text {
+            color: var(--accent-primary);
+            text-transform: uppercase;
+            text-shadow: 0 0 8px rgba(255, 118, 117, 0.3);
+        }
+
+        .stream-timer-display {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .time-block {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .time-val {
+            font-size: 38px;
+            font-weight: 900;
+            font-family: 'Consolas', monospace;
+            line-height: 1;
+            letter-spacing: 1.5px;
+        }
+
+        #stream-time {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 20px rgba(0, 210, 211, 0.4);
+        }
+
+        #countdown-time {
+            color: var(--accent-secondary);
+            text-shadow: 0 0 20px rgba(251, 197, 49, 0.4);
+        }
+
+        .time-lbl {
+            font-size: 10px;
+            color: var(--text-secondary);
+            font-weight: 700;
+            margin-top: 6px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .time-divider {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--text-secondary);
+            opacity: 0.4;
+            margin-top: -12px;
+        }
+
+        .streamer-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Streamer Right: Timeline checkpoints */
+        .streamer-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .timeline-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .timeline-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 10px 5px;
+        }
+
+        .timeline-line {
+            position: absolute;
+            top: 22px; left: 0; right: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            z-index: 1;
+            border-radius: 4px;
+        }
+
+        .checkpoint {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .checkpoint:hover .cp-dot {
+            transform: scale(1.2);
+            border-color: var(--text-primary);
+            box-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        .cp-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #111224;
+            border: 3px solid #2f3152;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cp-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            transition: 0.3s;
+        }
+
+        /* Checkpoint States */
+        .checkpoint.completed .cp-dot {
+            background: var(--accent-green);
+            border-color: rgba(46, 213, 115, 0.3);
+            box-shadow: 0 0 12px var(--accent-green);
+        }
+
+        .checkpoint.completed .cp-label {
+            color: var(--accent-green);
+        }
+
+        /* Pendaran radar "Breathing Ring" emas yang melebar di checkpoint aktif */
+        @keyframes activeRadar {
+            0% { box-shadow: 0 0 8px var(--accent-secondary), 0 0 0 0px rgba(251, 197, 49, 0.5); }
+            100% { box-shadow: 0 0 20px var(--accent-secondary), 0 0 0 12px rgba(251, 197, 49, 0); }
+        }
+
+        .checkpoint.active .cp-dot {
+            background: var(--accent-secondary);
+            border-color: #ffffff;
+            animation: activeRadar 1.5s infinite ease-in-out;
+        }
+
+        .checkpoint.active .cp-label {
+            color: var(--accent-secondary);
+            text-shadow: 0 0 10px rgba(251, 197, 49, 0.5);
+        }
+
+        /* 3-Column Layout */
+        .main-container {
+            display: grid;
+            grid-template-columns: 330px 1fr 330px;
+            gap: 24px;
+            width: 100%;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            .center-panel {
+                order: -1;
+            }
+        }
+
+        /* Panel Glassmorphism Premium */
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        /* Title styling */
+        .panel-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--accent-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .panel-subtitle {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: -12px;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        textarea {
+            width: 100%;
+            height: 180px;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            color: var(--text-primary);
+            padding: 12px;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            resize: none;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        textarea:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 10px rgba(255, 118, 117, 0.25);
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, #e15f41 100%);
+            color: #ffffff;
+            box-shadow: var(--accent-shadow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(255, 118, 117, 0.6);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .preset-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .preset-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .btn-preset {
+            padding: 8px 5px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-preset:hover {
+            border-color: var(--accent-secondary);
+            color: var(--accent-secondary);
+            background: rgba(251, 197, 49, 0.05);
+        }
+
+        /* Center Panel - Spin Wheel Machine */
+        .center-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        /* --- WHEEL CONTAINER REAKTOR BULAT SEMPURNA DENGAN CSS SHADOW BERLAPIS --- */
+        .wheel-outer-ring {
+            position: relative;
+            width: 440px;
+            height: 440px;
+            /* Latar belakang reaktor futuristik serat karbon/baja gelap */
+            background: radial-gradient(circle, rgba(24, 25, 48, 0.95) 0%, rgba(7, 8, 18, 0.98) 100%);
+            border-radius: 50%;
+            /* Bingkai cincin logam mengkilap berkilau */
+            border: 8px solid rgba(255, 255, 255, 0.05);
+            /* Bayangan ambient reaktor bulat sempurna (Hardware Accelerated CSS) */
+            box-shadow: 
+                0 0 35px rgba(0, 0, 0, 0.85),
+                0 0 20px rgba(255, 118, 117, 0.12),
+                inset 0 0 35px rgba(255, 255, 255, 0.02);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: visible;
+        }
+
+        /* Pendaran laser kuning menyala BULAT SEMPURNA saat berputar */
+        .wheel-outer-ring.spinning {
+            border-color: var(--accent-secondary);
+            box-shadow: 
+                0 0 55px rgba(251, 197, 49, 0.6),
+                0 0 25px rgba(251, 197, 49, 0.3),
+                inset 0 0 40px rgba(255, 255, 255, 0.04);
+        }
+
+        /* Garis putus-putus orbit luar reaktor */
+        .wheel-outer-ring::after {
+            content: '';
+            position: absolute;
+            top: -14px; left: -14px; right: -14px; bottom: -14px;
+            border-radius: 50%;
+            border: 2px dashed rgba(255, 118, 117, 0.22);
+            animation: rotateDashed 90s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rotateDashed {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        canvas {
+            display: block;
+            z-index: 5;
+            border-radius: 50%;
+        }
+
+        .controls-row {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            gap: 15px;
+        }
+
+        /* SPIN / STOP BUTTON DENGAN EFEK LIGHT SWEEP (WOW FACTOR) */
+        .btn-spin {
+            flex: 2;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 900;
+            color: #05060b;
+            background: linear-gradient(135deg, var(--accent-secondary) 0%, #f39c12 100%);
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 25px rgba(251, 197, 49, 0.35);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Kilatan pantulan cahaya menyapu tombol (Light Sweep Effect) */
+        .btn-spin::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+            transform: skewX(-25deg);
+            transition: none;
+            animation: lightSweep 4s infinite linear;
+        }
+
+        @keyframes lightSweep {
+            0% { left: -100%; }
+            40% { left: 150%; }
+            100% { left: 150%; }
+        }
+
+        .btn-spin:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 0 40px rgba(251, 197, 49, 0.6);
+        }
+
+        .btn-spin:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        .btn-spin:disabled {
+            background: #2a2b33;
+            color: #6a6b75;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .sound-toggle-btn {
+            flex: 1;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
+        }
+
+        .sound-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+
+        /* --- STATISTIK PELUANG BERGAYA HEALTH BAR GAMING --- */
+        .stat-list, .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        /* Custom scrollbar */
+        .stat-list::-webkit-scrollbar, .history-list::-webkit-scrollbar, textarea::-webkit-scrollbar {
+            width: 4px;
+        }
+        .stat-list::-webkit-scrollbar-track, .history-list::-webkit-scrollbar-track, textarea::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .stat-list::-webkit-scrollbar-thumb, .history-list::-webkit-scrollbar-thumb, textarea::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+        }
+        .stat-list::-webkit-scrollbar-thumb:hover, .history-list::-webkit-scrollbar-thumb:hover, textarea::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        /* Karakter bar info stat */
+        .stat-item-hud {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            transition: all 0.25s ease;
+        }
+
+        .stat-item-hud:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+        }
+
+        .stat-hud-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .stat-hud-name {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-hud-weight {
+            font-size: 10px;
+            color: var(--text-secondary);
+            font-weight: normal;
+        }
+
+        .stat-hud-pct {
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .stat-hud-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: rgba(0, 0, 0, 0.45);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .stat-hud-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* --- RIWAYAT PEMENANG KAPSUL MAHKOTA EMAS --- */
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: linear-gradient(90deg, rgba(46, 213, 115, 0.08) 0%, rgba(46, 213, 115, 0.02) 100%);
+            border: 1px solid rgba(46, 213, 115, 0.18);
+            border-radius: 12px;
+            font-size: 13px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(8px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .history-name {
+            font-weight: 800;
+            color: var(--accent-green);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-shadow: 0 0 10px rgba(46, 213, 115, 0.25);
+        }
+
+        .history-crown {
+            font-size: 14px;
+            filter: drop-shadow(0 0 5px rgba(251, 197, 49, 0.5));
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .btn-history-del {
+            background: none;
+            border: none;
+            color: var(--accent-primary);
+            cursor: pointer;
+            font-size: 16px;
+            opacity: 0.6;
+            transition: 0.2s;
+            padding: 1px 4px;
+        }
+
+        .btn-history-del:hover {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .empty-state {
+            color: var(--text-secondary);
+            font-size: 11px;
+            text-align: center;
+            padding: 12px 0;
+            font-style: italic;
+        }
+
+        /* Winner Overlay */
+        #winner-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(3, 4, 8, 0.94);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(12px);
+        }
+
+        .winner-card {
+            background: linear-gradient(145deg, #121327 0%, #060712 100%);
+            border: 2px solid var(--accent-secondary);
+            border-radius: 28px;
+            padding: 40px;
+            width: 90%;
+            max-width: 440px;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(251, 197, 49, 0.55);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+            position: relative;
+        }
+
+        .winner-card::before {
+            content: '👑';
+            font-size: 50px;
+            position: absolute;
+            top: -40px;
+            filter: drop-shadow(0 0 10px rgba(251,197,49,0.6));
+        }
+
+        .winner-title {
+            color: var(--accent-green);
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-family: 'Outfit', sans-serif;
+            text-shadow: 0 0 15px rgba(46, 213, 115, 0.3);
+        }
+
+        .winner-avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            font-weight: 800;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            border: 4px solid #ffffff;
+            margin: 10px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .winner-name-txt {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--text-primary);
+            text-shadow: 0 0 20px rgba(255,255,255,0.2);
+            word-break: break-word;
+        }
+
+        .winner-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .btn-overlay-close {
+            padding: 14px 40px;
+            background: linear-gradient(135deg, var(--accent-green) 0%, #22aa57 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(46, 213, 115, 0.25);
+            transition: 0.2s;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-overlay-close:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(46, 213, 115, 0.5);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.65); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        #confettiCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 1001;
+        }
+
+        /* --- OBS / VIEWER TRANSPARENT HUD MODE --- */
+        body.view-mode {
+            background: transparent !important;
+            padding: 0;
+            overflow: hidden;
+        }
+        body.view-mode::before, body.view-mode::after, body.view-mode .cosmic-grid {
+            display: none !important;
+        }
+        body.view-mode #app-wrapper {
+            max-width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            padding: 20px;
+        }
+        body.view-mode header {
+            display: none !important;
+        }
+        body.view-mode .streamer-dashboard {
+            grid-template-columns: 1fr;
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            padding: 12px 24px;
+        }
+        body.view-mode .streamer-controls {
+            display: none !important;
+        }
+        body.view-mode .main-container {
+            grid-template-columns: 1fr 300px;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 60px;
+        }
+        body.view-mode .glass-panel:nth-child(1) {
+            display: none !important;
+        }
+        body.view-mode .glass-panel:nth-child(3) {
+            background: rgba(8, 9, 21, 0.96);
+        }
+        body.view-mode .glass-panel:nth-child(3) > div:nth-child(1) {
+            display: none !important;
+        }
+        body.view-mode .controls-row {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Latar Belakang Grid Kosmik -->
+    <div class="cosmic-grid"></div>
+
+    <!-- Canvas Khusus Konfeti Selebrasi -->
+    <canvas id="confettiCanvas"></canvas>
+
+    <div id="app-wrapper">
+        <header>
+            <div class="header-title-container">
+                <span class="sys-badge">Streamer Hub v2.5</span>
+                <h1>Kael Spin Wheel</h1>
+            </div>
+            <p>Sistem Roda Keberuntungan Kreatif - Optimalkan Keterlibatan Penonton Anda</p>
+        </header>
+
+        <!-- STREAMER HUD DASHBOARD PANEL -->
+        <div class="streamer-dashboard">
+            <!-- Left Side: Live indicator & Timers -->
+            <div class="streamer-left">
+                <div class="live-badge-wrapper">
+                    <span class="live-indicator"></span>
+                    <span class="live-text">● LIVE STREAM ABSEN</span>
+                </div>
+                <div class="stream-timer-display">
+                    <div class="time-block">
+                        <span class="time-val" id="stream-time">00:00</span>
+                        <span class="time-lbl">STREAM TIME</span>
+                    </div>
+                    <div class="time-divider">:</div>
+                    <div class="time-block">
+                        <span class="time-val" id="countdown-time">15:00</span>
+                        <span class="time-lbl">ABSEN BERIKUTNYA</span>
+                    </div>
+                </div>
+                <div class="streamer-controls">
+                    <button class="btn-preset" id="start-stream-btn" onclick="toggleStreamTimer()" style="flex:1;">Mulai Stream</button>
+                    <button class="btn-preset" onclick="resetStreamTimer()">Reset</button>
+                </div>
+            </div>
+            
+            <!-- Right Side: Checkpoint timeline -->
+            <div class="streamer-right">
+                <div class="timeline-title">Linimasa Checkpoint Absen (0 - 90 Menit)</div>
+                <div class="timeline-wrapper">
+                    <div class="timeline-line"></div>
+                    <div class="checkpoint active" id="cp-0" onclick="setCheckpoint(0)">
+                        <div class="cp-dot"></div>
+                        <div class="cp-label">0m</div>
+                    </div>
+                    <div class="checkpoint" id="cp-15" onclick="setCheckpoint(15)">
+                        <div class="cp-dot"></div>
+                        <div class="cp-label">15m</div>
+                    </div>
+                    <div class="checkpoint" id="cp-30" onclick="setCheckpoint(30)">
+                        <div class="cp-dot"></div>
+                        <div class="cp-label">30m</div>
+                    </div>
+                    <div class="checkpoint" id="cp-45" onclick="setCheckpoint(45)">
+                        <div class="cp-dot"></div>
+                        <div class="cp-label">45m</div>
+                    </div>
+                    <div class="checkpoint" id="cp-60" onclick="setCheckpoint(60)">
+                        <div class="cp-dot"></div>
+                        <div class="cp-label">60m</div>
+                    </div>
+                    <div class="checkpoint" id="cp-75" onclick="setCheckpoint(75)">
+                        <div class="cp-dot"></div>
+                        <div class="cp-label">75m</div>
+                    </div>
+                    <div class="checkpoint" id="cp-90" onclick="setCheckpoint(90)">
+                        <div class="cp-dot"></div>
+                        <div class="cp-label">Ganti</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-container">
+            <!-- Left Column: Input Data -->
+            <div class="glass-panel">
+                <div class="panel-title">
+                    <span>Input Nama & Bobot</span>
+                    <span style="font-size: 12px; font-weight: normal; color: var(--text-secondary);" id="counter-display">0 Peserta</span>
+                </div>
+                <p class="panel-subtitle">Masukkan satu nama per baris. Format "Nama:Bobot" (contoh: Budi:5 atau Citra:2).</p>
+                <textarea id="raw-input" placeholder="Andi:5&#10;Budi:2&#10;Citra:1&#10;Dewi:1"></textarea>
+                
+                <button class="btn-action btn-primary" onclick="loadDataFromInput()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                    Terapkan Data
+                </button>
+
+                <div class="preset-container">
+                    <div class="preset-label">Pilihan Cepat (Presets):</div>
+                    <div class="preset-buttons">
+                        <button class="btn-preset" onclick="loadPreset('arisan')">Arisan</button>
+                        <button class="btn-preset" onclick="loadPreset('giveaway')">Giveaway</button>
+                        <button class="btn-preset" onclick="loadPreset('lucky')">Jackpot</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center Column: Spin Wheel Canvas -->
+            <div class="center-panel">
+                <!-- REAKTOR RING BULAT SEMPURNA DI CSS -->
+                <div class="wheel-outer-ring" id="wheel-rim">
+                    <!-- Ukuran canvas 420x420 fit sempurna di dalam ring 440x440 -->
+                    <canvas id="gachaCanvas" width="420" height="420"></canvas>
+                </div>
+                
+                <div class="controls-row">
+                    <button id="spin-btn" class="btn-spin" onclick="spinWheel()">PUTAR RODA!</button>
+                    <button class="sound-toggle-btn" onclick="toggleSound()" id="sound-btn">🔊 Suara</button>
+                </div>
+            </div>
+
+            <!-- Right Column: Stats & Winner History -->
+            <div class="glass-panel">
+                <!-- Statistik Peluang -->
+                <div>
+                    <div class="panel-title">Statistik Peluang</div>
+                    <div id="stat-list" class="stat-list">
+                        <div class="empty-state">Belum ada data dimuat.</div>
+                    </div>
+                </div>
+
+                <!-- Riwayat Pemenang -->
+                <div>
+                    <div class="panel-title">
+                        <span>Riwayat Pemenang</span>
+                        <button class="btn-history-del" onclick="clearHistory()" style="font-size: 10px;">Hapus Semua</button>
+                    </div>
+                    <div id="history-list" class="history-list">
+                        <div class="empty-state">Belum ada pemenang terpilih.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Pemenang Overlay -->
+    <div id="winner-overlay">
+        <div class="winner-card">
+            <div class="winner-title">PEMENANG TERPILIH!</div>
+            <div id="winner-avatar" class="winner-avatar">N</div>
+            <div id="winner-name" class="winner-name-txt">Nama Pemenang</div>
+            <p id="winner-info">Berhasil memenangkan undian secara adil.</p>
+            <div style="display:flex; gap: 8px; width: 100%;">
+                <button class="btn-action btn-secondary" onclick="removeWinnerFromWheel()" style="font-size: 12px; padding: 10px 5px;" id="remove-btn">
+                    Hapus Nama dari Roda
+                </button>
+                <button class="btn-overlay-close" onclick="closeWinnerOverlay()" style="flex:1;">TUTUP</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- SYNTHESIZED SOUND EFFECTS ENGINE (Web Audio API) ---
+        const audioSynth = {
+            ctx: null,
+            enabled: true,
+            
+            init() {
+                if (this.ctx) return;
+                try {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch(e) {
+                    console.warn("Web Audio API not supported", e);
+                }
+            },
+            
+            playTick() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+                
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc.type = 'triangle';
+                // Ticker Click Sound: Frekuensi turun cepat dengan durasi sangat pendek
+                osc.frequency.setValueAtTime(550, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.035);
+                
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.035);
+                
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.04);
+            },
+            
+            playWin() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+                
+                const now = this.ctx.currentTime;
+                // Arpeggio kemenangan yang ceria: C4, E4, G4, C5, E5, G5, C6
+                const scale = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+                
+                scale.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+                    
+                    gain.gain.setValueAtTime(0.1, now + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+                    
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.45);
+                });
+            },
+
+            playBuzzer() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+                
+                const now = this.ctx.currentTime;
+                // Suara bip/buzzer alarm ganda
+                const osc1 = this.ctx.createOscillator();
+                const osc2 = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc1.type = 'sawtooth';
+                osc1.frequency.setValueAtTime(520, now);
+                osc1.frequency.linearRampToValueAtTime(800, now + 0.15);
+                osc1.frequency.linearRampToValueAtTime(520, now + 0.3);
+                
+                osc2.type = 'square';
+                osc2.frequency.setValueAtTime(524, now);
+                osc2.frequency.linearRampToValueAtTime(804, now + 0.15);
+                osc2.frequency.linearRampToValueAtTime(524, now + 0.3);
+                
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.setValueAtTime(0.12, now + 0.3);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+                
+                osc1.start(now);
+                osc2.start(now);
+                
+                osc1.stop(now + 0.5);
+                osc2.stop(now + 0.5);
+            }
+        };
+
+        function toggleSound() {
+            audioSynth.enabled = !audioSynth.enabled;
+            const btn = document.getElementById('sound-btn');
+            if (audioSynth.enabled) {
+                btn.innerHTML = '🔊 Suara';
+                btn.style.color = 'var(--text-primary)';
+                btn.style.background = 'rgba(255, 255, 255, 0.03)';
+            } else {
+                btn.innerHTML = '🔇 Bisukan';
+                btn.style.color = '#718093';
+                btn.style.background = 'rgba(255, 255, 255, 0.01)';
+            }
+        }
+
+        // --- LIVE STREAM TIMERS & CHECKPOINT SYSTEM ---
+        let isStreaming = false;
+        let streamElapsedSeconds = 0; // Detik waktu stream yang berjalan
+        let nextAbsenSeconds = 15 * 60; // Hitung mundur 15 menit ke absen berikutnya
+        let streamTimerInterval = null;
+        let currentCheckpoint = 0; // Checkpoint aktif saat ini (0, 15, 30, 45, 60, 75, 90)
+
+        function updateStreamerTimer() {
+            streamElapsedSeconds++;
+            
+            // Format waktu stream (MM:SS)
+            const streamMin = Math.floor(streamElapsedSeconds / 60);
+            const streamSec = streamElapsedSeconds % 60;
+            document.getElementById('stream-time').innerText = 
+                `${streamMin.toString().padStart(2, '0')}:${streamSec.toString().padStart(2, '0')}`;
+            
+            // Logika hitung mundur absen berikutnya
+            if (nextAbsenSeconds > 0) {
+                nextAbsenSeconds--;
+            } else {
+                // Timer mencapai 0! Bunyikan alarm buzzer!
+                audioSynth.playBuzzer();
+                flashDashboardAlert();
+                
+                // Pindahkan ke checkpoint berikutnya secara otomatis
+                const checkpoints = [0, 15, 30, 45, 60, 75, 90];
+                const currentIndex = checkpoints.indexOf(currentCheckpoint);
+                if (currentIndex !== -1 && currentIndex < checkpoints.length - 1) {
+                    const nextCp = checkpoints[currentIndex + 1];
+                    setCheckpoint(nextCp);
+                } else {
+                    nextAbsenSeconds = 15 * 60; // Reset protektif
+                }
+            }
+            
+            // Format waktu hitung mundur
+            const countdownMin = Math.floor(nextAbsenSeconds / 60);
+            const countdownSec = nextAbsenSeconds % 60;
+            document.getElementById('countdown-time').innerText = 
+                `${countdownMin.toString().padStart(2, '0')}:${countdownSec.toString().padStart(2, '0')}`;
+            
+            // Cek jika sudah menyentuh menit 90 (Serah terima streamer)
+            if (streamMin >= 90) {
+                triggerHandoverAlert();
+            }
+
+            // Sync waktu timer ke tab OBS setiap detik!
+            if (viewMode !== 'view') {
+                broadcastState('sync_timer', { streamElapsedSeconds, nextAbsenSeconds, currentCheckpoint });
+            }
+        }
+
+        function toggleStreamTimer() {
+            const btn = document.getElementById('start-stream-btn');
+            if (isStreaming) {
+                // Pause timer
+                clearInterval(streamTimerInterval);
+                isStreaming = false;
+                btn.innerText = "Lanjut Stream";
+                btn.style.background = "rgba(255, 255, 255, 0.03)";
+            } else {
+                // Jalankan timer
+                audioSynth.init();
+                isStreaming = true;
+                btn.innerText = "Jeda Stream";
+                btn.style.background = "var(--accent-green)";
+                streamTimerInterval = setInterval(updateStreamerTimer, 1000);
+            }
+        }
+
+        function resetStreamTimer() {
+            clearInterval(streamTimerInterval);
+            isStreaming = false;
+            streamElapsedSeconds = 0;
+            nextAbsenSeconds = 15 * 60;
+            currentCheckpoint = 0;
+            
+            document.getElementById('stream-time').innerText = "00:00";
+            document.getElementById('countdown-time').innerText = "15:00";
+            
+            const btn = document.getElementById('start-stream-btn');
+            btn.innerText = "Mulai Stream";
+            btn.style.background = "rgba(255, 255, 255, 0.03)";
+            
+            setCheckpoint(0);
+
+            if (viewMode !== 'view') {
+                broadcastState('sync_timer', { streamElapsedSeconds, nextAbsenSeconds, currentCheckpoint });
+            }
+        }
+
+        function setCheckpoint(minutes) {
+            currentCheckpoint = minutes;
+            
+            // Update tampilan titik linimasa di UI
+            const checkpoints = [0, 15, 30, 45, 60, 75, 90];
+            checkpoints.forEach(cp => {
+                const element = document.getElementById(`cp-${cp}`);
+                if (!element) return;
+                
+                element.classList.remove('active', 'completed');
+                if (cp < minutes) {
+                    element.classList.add('completed');
+                } else if (cp === minutes) {
+                    element.classList.add('active');
+                }
+            });
+            
+            // Hitung ulang waktu mundur berdasarkan checkpoint yang dipilih
+            if (minutes === 90) {
+                nextAbsenSeconds = 0;
+                document.getElementById('countdown-time').innerText = "00:00";
+            } else {
+                nextAbsenSeconds = 15 * 60;
+                document.getElementById('countdown-time').innerText = "15:00";
+            }
+            
+            // Sinkronkan Stopwatch Stream agar sesuai dengan menit checkpoint yang di-klik
+            streamElapsedSeconds = minutes * 60;
+            const streamMin = Math.floor(streamElapsedSeconds / 60);
+            const streamSec = streamElapsedSeconds % 60;
+            document.getElementById('stream-time').innerText = 
+                `${streamMin.toString().padStart(2, '0')}:${streamSec.toString().padStart(2, '0')}`;
+
+            if (viewMode !== 'view') {
+                broadcastState('set_checkpoint', { minutes });
+                broadcastState('sync_timer', { streamElapsedSeconds, nextAbsenSeconds, currentCheckpoint });
+            }
+        }
+
+        function flashDashboardAlert() {
+            const panel = document.querySelector('.streamer-dashboard');
+            panel.style.borderColor = 'var(--accent-secondary)';
+            panel.style.boxShadow = '0 0 30px rgba(251, 197, 49, 0.4)';
+            
+            setTimeout(() => {
+                panel.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                panel.style.boxShadow = 'var(--card-shadow)';
+            }, 3000);
+        }
+
+        function triggerHandoverAlert() {
+            clearInterval(streamTimerInterval);
+            isStreaming = false;
+            document.getElementById('start-stream-btn').innerText = "Mulai Stream";
+            document.getElementById('start-stream-btn').style.background = "rgba(255,255,255,0.03)";
+            
+            audioSynth.playBuzzer();
+            
+            alert("⏰ LIVESTREAM 90 MENIT SELESAI!\nSaatnya serah terima live streaming ke streamer berikutnya!");
+        }
+
+        // --- BACKGROUND CONFETTI PARTY SYSTEM ---
+        class ConfettiParticle {
+            constructor(w, h) {
+                this.w = w; this.h = h;
+                this.x = Math.random() * w;
+                this.y = Math.random() * -h - 20;
+                this.size = Math.random() * 8 + 6;
+                this.color = `hsl(${Math.random() * 360}, 90%, 60%)`;
+                this.speedX = Math.random() * 4 - 2;
+                this.speedY = Math.random() * 6 + 4;
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = Math.random() * 6 - 3;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.rotation += this.rotationSpeed;
+                if (this.y > this.h) {
+                    this.y = -20;
+                    this.x = Math.random() * this.w;
+                }
+            }
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation * Math.PI / 180);
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        let confettiActive = false;
+        let confettiParticles = [];
+        const confettiCanvas = document.getElementById('confettiCanvas');
+        const confettiCtx = confettiCanvas.getContext('2d');
+
+        function resizeConfetti() {
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeConfetti);
+
+        function startConfetti() {
+            confettiActive = true;
+            confettiParticles = [];
+            resizeConfetti();
+            for (let i = 0; i < 140; i++) {
+                confettiParticles.push(new ConfettiParticle(confettiCanvas.width, confettiCanvas.height));
+            }
+        }
+
+        function stopConfetti() {
+            confettiActive = false;
+            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        }
+
+        function updateConfettiLoop() {
+            if (!confettiActive) return;
+            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            confettiParticles.forEach(p => {
+                p.update();
+                p.draw(confettiCtx);
+            });
+            requestAnimationFrame(updateConfettiLoop);
+        }
+
+        // --- MAIN SPIN WHEEL CORE ENGINE ---
+        const canvas = document.getElementById('gachaCanvas');
+        const ctx = canvas.getContext('2d');
+        const spinBtn = document.getElementById('spin-btn');
+
+        // PARAMETER VISUAL BULAT SIMPURNA (1:1)
+        const cx = canvas.width / 2; // 210
+        const cy = canvas.height / 2; // 210 (Tengah Sempurna Vertikal & Horizontal)
+        const wheelRadius = 180; // Radius disusutkan sedikit agar bayangan CSS di luar tidak kepotong
+        
+        let participants = []; // Menyimpan: { name, weight, color, startAngle, endAngle }
+        const colors = [
+            '#ff7675', '#00a8ff', '#9c88ff', '#fbc531', '#2ed573', 
+            '#e1b12c', '#8c7ae6', '#00d2d3', '#ff9f43', '#10ac84',
+            '#0984e3', '#6c5ce7', '#fdcb6e', '#d63031', '#fd79a8'
+        ];
+
+        // Fisika Rotasi Roda
+        let angle = 0;
+        let angularVelocity = 0;
+        let isSpinning = false;
+        let isContinuous = false;
+        let isStopping = false;
+        let lastSelectedIdx = -1;
+        let pointerWiggle = 0;
+        let pointerWiggleDir = 1;
+        const drag = 0.984; // Tingkat perlambatan putaran (0.98 - 0.99)
+
+        // --- DETEKSI VIEW MODE & ENGINE SINKRONISASI REAL-TIME ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const viewMode = urlParams.get('mode'); // 'view' (untuk OBS/Viewer) atau 'control' (untuk Streamer)
+        if (viewMode === 'view') {
+            document.body.classList.add('view-mode');
+        }
+
+        // Inisialisasi Jalur Komunikasi
+        const channel = new BroadcastChannel('kael_spin_wheel_channel');
+
+        function broadcastState(action, data) {
+            const payload = { action, data, timestamp: Date.now() };
+            // Metode 1: BroadcastChannel
+            try {
+                channel.postMessage(payload);
+            } catch(e) {}
+            // Metode 2: Fallback localStorage (Wajib untuk kompatibilitas OBS CEF lokal)
+            try {
+                localStorage.setItem('kael_spin_wheel_msg', JSON.stringify(payload));
+            } catch(e) {}
+        }
+
+        // Handler pesan masuk di Tab OBS/Viewer
+        function handleIncomingMessage(msg) {
+            if (viewMode !== 'view') return; // Hanya tab viewer yang memproses pesan masuk!
+            
+            const { action, data } = msg;
+            
+            if (action === 'update_participants') {
+                participants = data.participants;
+                let totalWeight = data.totalWeight;
+                updateStatsUI(totalWeight);
+                drawWheel();
+            } else if (action === 'spin') {
+                audioSynth.init();
+                isSpinning = true;
+                isContinuous = true;
+                isStopping = false;
+                angularVelocity = data.angularVelocity;
+                document.getElementById('wheel-rim').classList.add('spinning');
+                closeWinnerOverlay();
+            } else if (action === 'stop') {
+                stopWheel(data.winnerIdx);
+            } else if (action === 'sync_timer') {
+                streamElapsedSeconds = data.streamElapsedSeconds;
+                nextAbsenSeconds = data.nextAbsenSeconds;
+                currentCheckpoint = data.currentCheckpoint;
+                
+                // Update tampilan waktu di HUD OBS
+                const streamMin = Math.floor(streamElapsedSeconds / 60);
+                const streamSec = streamElapsedSeconds % 60;
+                document.getElementById('stream-time').innerText = 
+                    `${streamMin.toString().padStart(2, '0')}:${streamSec.toString().padStart(2, '0')}`;
+                
+                const countdownMin = Math.floor(nextAbsenSeconds / 60);
+                const countdownSec = nextAbsenSeconds % 60;
+                document.getElementById('countdown-time').innerText = 
+                    `${countdownMin.toString().padStart(2, '0')}:${countdownSec.toString().padStart(2, '0')}`;
+                
+                // Sinkronkan checkpoint aktif di timeline OBS
+                const checkpoints = [0, 15, 30, 45, 60, 75, 90];
+                checkpoints.forEach(cp => {
+                    const element = document.getElementById(`cp-${cp}`);
+                    if (!element) return;
+                    element.classList.remove('active', 'completed');
+                    if (cp < currentCheckpoint) {
+                        element.classList.add('completed');
+                    } else if (cp === currentCheckpoint) {
+                        element.classList.add('active');
+                    }
+                });
+            } else if (action === 'set_checkpoint') {
+                setCheckpoint(data.minutes);
+            } else if (action === 'clear_history') {
+                winnersHistory = [];
+                updateHistoryUI();
+            }
+        }
+
+        // Listener 1: BroadcastChannel
+        channel.onmessage = function(event) {
+            handleIncomingMessage(event.data);
+        };
+
+        // Listener 2: LocalStorage (Storage Event)
+        window.addEventListener('storage', function(event) {
+            if (event.key === 'kael_spin_wheel_msg' && event.newValue) {
+                try {
+                    const msg = JSON.parse(event.newValue);
+                    handleIncomingMessage(msg);
+                } catch(e) {}
+            }
+        });
+
+        // Set Data Default
+        const defaultRaw = "Andi:5\nBudi:2\nCitra:1\nDewi:1";
+        document.getElementById('raw-input').value = defaultRaw;
+
+        // Riwayat Pemenang
+        let winnersHistory = [];
+        let currentWinner = null;
+
+        function loadDataFromInput() {
+            const raw = document.getElementById('raw-input').value.trim();
+            const lines = raw.split(/[\n,]+/).map(s => s.trim()).filter(s => s.length > 0);
+            
+            participants = [];
+            let totalWeight = 0;
+            
+            lines.forEach((line, idx) => {
+                let name = line;
+                let weight = 1;
+                
+                if (line.includes(':')) {
+                    const parts = line.split(':');
+                    name = parts[0].trim();
+                    weight = parseFloat(parts[1]) || 1;
+                }
+                
+                if (name.length > 0 && weight > 0) {
+                    participants.push({
+                        name: name,
+                        weight: weight,
+                        color: colors[idx % colors.length]
+                    });
+                    totalWeight += weight;
+                }
+            });
+
+            if (participants.length === 0) {
+                alert("Mohon masukkan nama terlebih dahulu!");
+                return;
+            }
+
+            // Hitung sudut proporsional juring
+            let currentAngle = 0;
+            participants.forEach(p => {
+                const fraction = p.weight / totalWeight;
+                p.startAngle = currentAngle;
+                p.endAngle = currentAngle + (fraction * 2 * Math.PI);
+                currentAngle = p.endAngle;
+            });
+
+            // Update Statistik Peluang
+            updateStatsUI(totalWeight);
+            
+            // Update display counter peserta
+            document.getElementById('counter-display').innerText = `${participants.length} Peserta`;
+            
+            // Reset posisi sudut
+            angle = 0;
+            lastSelectedIdx = -1;
+            drawWheel();
+
+            // Broadcast data terupdate ke tab Viewer/OBS
+            if (viewMode !== 'view') {
+                broadcastState('update_participants', { participants, totalWeight });
+            }
+        }
+
+        // --- STATS PELUANG BARU BERGAYA HEALTH/MANA BAR BERSINAR ---
+        function updateStatsUI(totalWeight) {
+            const statList = document.getElementById('stat-list');
+            statList.innerHTML = '';
+            
+            participants.forEach(p => {
+                const percentage = ((p.weight / totalWeight) * 100).toFixed(1);
+                const item = document.createElement('div');
+                item.className = 'stat-item-hud';
+                
+                item.innerHTML = `
+                    <div class="stat-hud-info">
+                        <span class="stat-hud-name">${p.name} <span class="stat-hud-weight">(${p.weight})</span></span>
+                        <span class="stat-hud-pct" style="color: ${p.color}; text-shadow: 0 0 10px ${p.color}40;">${percentage}%</span>
+                    </div>
+                    <div class="stat-hud-bar-bg">
+                        <div class="stat-hud-bar-fill" style="width: ${percentage}%; background-color: ${p.color}; box-shadow: 0 0 8px ${p.color};"></div>
+                    </div>
+                `;
+                statList.appendChild(item);
+            });
+        }
+
+        function loadPreset(type) {
+            let data = "";
+            if (type === 'arisan') {
+                data = "Andi:5\nBudi:3\nCitra:2\nDewi:1\nEka:1\nFani:1";
+            } else if (type === 'giveaway') {
+                data = "Rian:1\nSari:1\nTio:1\nVina:1\nYuda:1\nZidan:1\nKoko:1\nLina:1";
+            } else if (type === 'lucky') {
+                data = "Peserta Biasa:1\nPlayer Beruntung:12";
+            }
+            document.getElementById('raw-input').value = data;
+            loadDataFromInput();
+        }
+
+        // --- DRAWING CANVAS ---
+        function drawWheel() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (participants.length === 0) return;
+
+            // 1. Gambar Roda (Isi Juring & Label Teks)
+            participants.forEach((p, idx) => {
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                
+                const sa = p.startAngle + angle;
+                const ea = p.endAngle + angle;
+                
+                ctx.arc(cx, cy, wheelRadius - 4, sa, ea);
+                ctx.closePath();
+                
+                ctx.fillStyle = p.color;
+                ctx.fill();
+                
+                // Garis pemisah juring abu-abu tipis
+                ctx.strokeStyle = 'rgba(9, 10, 16, 0.3)';
+                ctx.lineWidth = 1.2;
+                ctx.stroke();
+                
+                // Label Teks Nama
+                const midAngle = sa + (ea - sa) / 2;
+                const arcLength = (ea - sa) * wheelRadius;
+                
+                if (arcLength > 15) {
+                    ctx.save();
+                    ctx.translate(cx, cy);
+                    ctx.rotate(midAngle);
+                    
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = '#ffffff';
+                    
+                    // Shadow pada teks agar terbaca jelas saat streaming
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
+                    ctx.shadowBlur = 3;
+                    
+                    let fontSize = Math.min(14, Math.max(9, Math.floor(arcLength / 6.5)));
+                    ctx.font = `bold ${fontSize}px 'Plus Jakarta Sans', sans-serif`;
+                    
+                    let nameDisplay = p.name;
+                    if (nameDisplay.length > 12) {
+                        nameDisplay = nameDisplay.substring(0, 10) + '..';
+                    }
+                    
+                    ctx.fillText(nameDisplay, wheelRadius - 26, 0);
+                    ctx.restore();
+                }
+                ctx.restore();
+            });
+
+            // 2. Gambar Paku/Pins Pembatas 3D di Tepi Roda
+            participants.forEach((p, idx) => {
+                const sa = p.startAngle + angle;
+                const pinX = cx + Math.cos(sa) * (wheelRadius - 8);
+                const pinY = cy + Math.sin(sa) * (wheelRadius - 8);
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(pinX, pinY, 3.5, 0, Math.PI * 2);
+                
+                // Radial gradient pin metalik
+                const pinGrad = ctx.createRadialGradient(pinX - 0.8, pinY - 0.8, 0.5, pinX, pinY, 3.5);
+                pinGrad.addColorStop(0, '#ffffff');
+                pinGrad.addColorStop(0.3, '#d1d8e0');
+                pinGrad.addColorStop(1, '#4b6584');
+                
+                ctx.fillStyle = pinGrad;
+                ctx.shadowColor = 'rgba(0,0,0,0.4)';
+                ctx.shadowBlur = 2;
+                ctx.fill();
+                ctx.restore();
+            });
+
+            // 3. LED Blinking Lights di Bingkai Roda (Kedipan Indah)
+            const numLeds = 24;
+            const ledFlashRate = isSpinning ? 80 : 250;
+            const flashIndex = Math.floor(Date.now() / ledFlashRate) % 2;
+            
+            for (let i = 0; i < numLeds; i++) {
+                const ledRot = isSpinning ? angle * 0.12 : 0;
+                const ledAngle = (i * 2 * Math.PI / numLeds) + ledRot;
+                const ledX = cx + Math.cos(ledAngle) * (wheelRadius + 6);
+                const ledY = cy + Math.sin(ledAngle) * (wheelRadius + 6);
+                
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(ledX, ledY, 2.5, 0, Math.PI * 2);
+                
+                if ((i + flashIndex) % 2 === 0) {
+                    ctx.fillStyle = '#ff7675';
+                    ctx.shadowColor = '#ff7675';
+                    ctx.shadowBlur = 6;
+                } else {
+                    ctx.fillStyle = '#fbc531';
+                    ctx.shadowColor = '#fbc531';
+                    ctx.shadowBlur = 6;
+                }
+                
+                ctx.fill();
+                ctx.restore();
+            }
+
+            // 4. Gambar Jarum Penunjuk/Pointer dengan Fisika Getar (Wiggle)
+            ctx.save();
+            ctx.translate(cx, cy - wheelRadius - 2);
+            
+            pointerWiggle *= 0.84; // Decay getar
+            if (Math.abs(pointerWiggle) < 0.1) pointerWiggle = 0;
+            
+            ctx.rotate(pointerWiggleDir * (pointerWiggle * Math.PI / 180));
+
+            // Jarum segitiga gaming cyberpunk
+            ctx.beginPath();
+            ctx.moveTo(-12, -10);
+            ctx.lineTo(12, -10);
+            ctx.lineTo(0, 22);
+            ctx.closePath();
+
+            const ptrGrad = ctx.createLinearGradient(0, -10, 0, 22);
+            ptrGrad.addColorStop(0, '#ff7675');
+            ptrGrad.addColorStop(1, '#ff4757');
+            ctx.fillStyle = ptrGrad;
+            ctx.shadowColor = '#ff4757';
+            ctx.shadowBlur = 8;
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(0, -5, 3, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+            ctx.restore();
+
+            // 5. Center Cap Lingkaran Tengah Roda (Non-rotating)
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx, cy, 30, 0, Math.PI * 2);
+            const capGrad = ctx.createRadialGradient(cx - 3, cy - 3, 3, cx, cy, 30);
+            capGrad.addColorStop(0, '#2d3436');
+            capGrad.addColorStop(1, '#090a10');
+            ctx.fillStyle = capGrad;
+            ctx.strokeStyle = isSpinning ? 'var(--accent-secondary)' : 'var(--accent-primary)';
+            ctx.lineWidth = 3;
+            ctx.shadowColor = isSpinning ? 'var(--accent-secondary)' : 'var(--accent-primary)';
+            ctx.shadowBlur = 10;
+            ctx.fill();
+            ctx.stroke();
+
+            // Teks KAEL di cap tengah
+            ctx.fillStyle = '#ffffff';
+            ctx.font = "800 10px 'Plus Jakarta Sans', sans-serif";
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowBlur = 0;
+            ctx.fillText("KAEL", cx, cy);
+            ctx.restore();
+        }
+
+        // --- UPDATE LOOP FISIKA RODA ---
+        let decelFrame = 0;
+        let decelTotalFrames = 240; // 4 detik pelambatan halus (100% sinkron di kedua layar)
+        let startAngleOfDecel = 0;
+        let totalDistOfDecel = 0;
+
+        function updateWheelPhysics() {
+            if (!isSpinning) {
+                drawWheel();
+                requestAnimationFrame(updateWheelPhysics);
+                return;
+            }
+
+            // Putar sudut roda
+            if (isStopping) {
+                decelFrame++;
+                let t = decelFrame / decelTotalFrames;
+                if (t >= 1) {
+                    t = 1;
+                    isSpinning = false;
+                    isStopping = false;
+                    angularVelocity = 0;
+                    
+                    spinBtn.disabled = false;
+                    spinBtn.innerText = "PUTAR RODA!";
+                    // Reset styling tombol SPIN ke neon kuning
+                    spinBtn.style.background = "linear-gradient(135deg, var(--accent-secondary) 0%, #e1b12c 100%)";
+                    spinBtn.style.color = "#0f1015";
+                    spinBtn.style.boxShadow = "0 0 15px rgba(251, 197, 49, 0.25)";
+                    
+                    // Hilangkan class spinning pada rim untuk stop neon glow kuning di CSS
+                    document.getElementById('wheel-rim').classList.remove('spinning');
+                    
+                    // Deklarasikan pemenang undian secara riil berdasarkan sudut henti akhir
+                    let localPointerAngle = (Math.PI * 1.5 - angle) % (2 * Math.PI);
+                    if (localPointerAngle < 0) localPointerAngle += 2 * Math.PI;
+
+                    let activeIdx = -1;
+                    for (let i = 0; i < participants.length; i++) {
+                        if (localPointerAngle >= participants[i].startAngle && localPointerAngle < participants[i].endAngle) {
+                            activeIdx = i;
+                            break;
+                        }
+                    }
+                    declareWinner(activeIdx);
+                } else {
+                    let ease = 1 - Math.pow(1 - t, 3); // Cubic Ease Out
+                    angle = startAngleOfDecel + ease * totalDistOfDecel;
+                    // Turunan matematis untuk wiggle jarum & ticks clicker
+                    angularVelocity = (3 * Math.pow(1 - t, 2) * totalDistOfDecel) / decelTotalFrames;
+                }
+            } else {
+                angle += angularVelocity;
+                // Perlambatan putaran roda (gesekan) - Hanya jika tidak berputar kontinu
+                if (!isContinuous) {
+                    angularVelocity *= drag;
+                }
+            }
+
+            // Detektor Ticking Jarum (Deteksi Pin Pembatas)
+            let localPointerAngle = (Math.PI * 1.5 - angle) % (2 * Math.PI);
+            if (localPointerAngle < 0) localPointerAngle += 2 * Math.PI;
+
+            let activeIdx = -1;
+            for (let i = 0; i < participants.length; i++) {
+                if (localPointerAngle >= participants[i].startAngle && localPointerAngle < participants[i].endAngle) {
+                    activeIdx = i;
+                    break;
+                }
+            }
+
+            // Jarum dipicu getar & klik saat pin melintas (pergantian juring aktif)
+            if (activeIdx !== lastSelectedIdx && lastSelectedIdx !== -1) {
+                audioSynth.playTick();
+                pointerWiggle = Math.min(22, angularVelocity * 90);
+                pointerWiggleDir = angularVelocity > 0 ? 1 : -1;
+            }
+            lastSelectedIdx = activeIdx;
+
+            drawWheel();
+            requestAnimationFrame(updateWheelPhysics);
+        }
+
+        // --- TRIGGER TOMBOL SPIN (Edisi Kencang & Stop Manual) ---
+        function spinWheel() {
+            if (participants.length === 0) {
+                alert("Terapkan data dulu sebelum memutar!");
+                return;
+            }
+
+            // JIKA RODA SEDANG BERPUTAR (CONTINUOUS), KLIK KEDUA AKAN MENGHENTIKANNYA!
+            if (isSpinning && isContinuous) {
+                // Pilih pemenang secara adil menggunakan bobot saat klik STOP
+                let totalWeight = 0;
+                participants.forEach(p => totalWeight += p.weight);
+                let rand = Math.random() * totalWeight;
+                let winnerIdx = 0;
+                let sum = 0;
+                for (let i = 0; i < participants.length; i++) {
+                    sum += participants[i].weight;
+                    if (rand <= sum) {
+                        winnerIdx = i;
+                        break;
+                    }
+                }
+                
+                // Hentikan roda sendiri
+                stopWheel(winnerIdx);
+                
+                // Broadcast perintah stop beserta pemenang terpilih ke OBS!
+                if (viewMode !== 'view') {
+                    broadcastState('stop', { winnerIdx });
+                }
+                return;
+            }
+
+            if (isSpinning) return;
+
+            audioSynth.init(); // Inisialisasi AudioContext wajib pertama kali interaksi
+
+            // Mulai putaran kencang tak terbatas
+            angularVelocity = 0.54; // Kecepatan tinggi (sangat kencang!)
+            isSpinning = true;
+            isContinuous = true;
+            isStopping = false;
+            
+            // Ubah tombol SPIN menjadi tombol HENTIKAN warna merah menyala
+            spinBtn.disabled = false;
+            spinBtn.innerText = "HENTIKAN RODA!";
+            spinBtn.style.background = "linear-gradient(135deg, #ff4757 0%, #ee5253 100%)";
+            spinBtn.style.color = "#ffffff";
+            spinBtn.style.boxShadow = "0 0 25px rgba(255, 71, 87, 0.5)";
+            
+            // Tambahkan class spinning untuk memicu efek pendaran kuning melingkar sempurna di CSS
+            document.getElementById('wheel-rim').classList.add('spinning');
+
+            closeWinnerOverlay();
+
+            // Broadcast perintah spin ke OBS!
+            if (viewMode !== 'view') {
+                broadcastState('spin', { angularVelocity: 0.54 });
+            }
+        }
+
+        function stopWheel(winnerIdx) {
+            isContinuous = false;
+            isStopping = true;
+            decelFrame = 0;
+            
+            // Tentukan target berhenti di tengah juring pemenang
+            const p = participants[winnerIdx];
+            let midAngle_W = (p.startAngle + p.endAngle) / 2;
+            
+            // Jarum penunjuk berada di puncak (270 derajat atau Math.PI * 1.5)
+            // Agar jarum menunjuk midAngle_W, roda harus berhenti di:
+            let targetStopAngle = Math.PI * 1.5 - midAngle_W;
+            
+            // Dapatkan selisih sudut yang dibutuhkan agar berputar minimal 4 kali lagi
+            let currentMod = angle % (2 * Math.PI);
+            let targetMod = targetStopAngle % (2 * Math.PI);
+            if (targetMod < 0) targetMod += 2 * Math.PI;
+            
+            let diff = targetMod - currentMod;
+            if (diff < 0) diff += 2 * Math.PI;
+            
+            startAngleOfDecel = angle;
+            totalDistOfDecel = diff + (4 * 2 * Math.PI); // Berputar 4 putaran penuh
+
+            // Nonaktifkan tombol sementara roda melambat secara dramatis (suspense)
+            spinBtn.disabled = true;
+            spinBtn.innerText = "MENGHENTIKAN...";
+            spinBtn.style.background = "#3a3b42";
+            spinBtn.style.color = "#70717a";
+            spinBtn.style.boxShadow = "none";
+        }
+
+        // --- DEKLARASI PEMENANG & SELEBRASI ---
+        function declareWinner(idx) {
+            if (idx === -1 || idx >= participants.length) return;
+            
+            currentWinner = participants[idx];
+            
+            // Mainkan selebrasi audio sintetis kemenangan
+            audioSynth.playWin();
+            
+            // Jalankan partikel konfeti
+            startConfetti();
+            updateConfettiLoop();
+
+            // Set detail popup pemenang
+            const avatar = document.getElementById('winner-avatar');
+            avatar.style.backgroundColor = currentWinner.color;
+            avatar.innerText = currentWinner.name.substring(0, 1).toUpperCase();
+            
+            document.getElementById('winner-name').innerText = currentWinner.name;
+            
+            setTimeout(() => {
+                document.getElementById('winner-overlay').style.display = 'flex';
+            }, 600);
+
+            // Masukkan nama pemenang ke panel riwayat
+            addToHistory(currentWinner.name);
+        }
+
+        function closeWinnerOverlay() {
+            document.getElementById('winner-overlay').style.display = 'none';
+            stopConfetti();
+        }
+
+        // --- MANAGEMEN RIWAYAT DENGAN TAG MAHKOTA EMAS ---
+        function addToHistory(name) {
+            winnersHistory.unshift(name);
+            updateHistoryUI();
+        }
+
+        function updateHistoryUI() {
+            const hList = document.getElementById('history-list');
+            hList.innerHTML = '';
+            
+            if (winnersHistory.length === 0) {
+                hList.innerHTML = '<div class="empty-state">Belum ada pemenang terpilih.</div>';
+                return;
+            }
+
+            winnersHistory.forEach((name, idx) => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerHTML = `
+                    <span class="history-name"><span class="history-crown">👑</span> ${name}</span>
+                    <div class="history-actions">
+                        <button class="btn-history-del" onclick="deleteHistoryItem(${idx})">×</button>
+                    </div>
+                `;
+                hList.appendChild(item);
+            });
+        }
+
+        function deleteHistoryItem(idx) {
+            winnersHistory.splice(idx, 1);
+            updateHistoryUI();
+        }
+
+        function clearHistory() {
+            if (winnersHistory.length === 0) return;
+            if (confirm("Apakah Anda yakin ingin menghapus semua riwayat pemenang?")) {
+                winnersHistory = [];
+                updateHistoryUI();
+
+                if (viewMode !== 'view') {
+                    broadcastState('clear_history', {});
+                }
+            }
+        }
+
+        // Fungsi hapus pemenang langsung dari daftar roda agar tidak berulang
+        function removeWinnerFromWheel() {
+            if (!currentWinner) return;
+            
+            const rawTextarea = document.getElementById('raw-input');
+            const lines = rawTextarea.value.trim().split(/[\n,]+/);
+            
+            const updatedLines = lines.filter(line => {
+                let name = line;
+                if (line.includes(':')) {
+                    name = line.split(':')[0].trim();
+                }
+                return name.toLowerCase() !== currentWinner.name.toLowerCase();
+            });
+
+            rawTextarea.value = updatedLines.join('\n');
+            loadDataFromInput(); // Reload roda
+            
+            closeWinnerOverlay();
+            alert(`"${currentWinner.name}" berhasil dihapus dari roda.`);
+            currentWinner = null;
+        }
+
+        // Deteksi klik pada cap roda tengah (Jalan pintas memutar roda / stop roda)
+        canvas.addEventListener('click', function(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+            
+            const dist = Math.sqrt((clickX - cx)*(clickX - cx) + (clickY - cy)*(clickY - cy));
+            
+            // Klik di area cap tengah (radius 30) memicu putaran roda / stop roda
+            if (dist <= 30) {
+                if (!isSpinning) {
+                    spinWheel();
+                } else if (isContinuous) {
+                    stopWheel();
+                }
+            }
+        });
+
+        // Jalankan inisialisasi awal
+        loadDataFromInput();
+        updateWheelPhysics();
+    </script>
+</body>
+</html>
