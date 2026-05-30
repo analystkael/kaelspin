@@ -473,28 +473,58 @@ io.on('connection', (socket) => {
     });
 
     // 14. Tambah partisipan baru secara instan
+    // 14. Tambah partisipan baru / Absen cepat via input berulang (Keyboard check-in)
     socket.on('admin:add_new_participant', (data) => {
         const { name, baseWeight } = data;
-        const exists = state.participants.some(p => p.name.toLowerCase() === name.toLowerCase());
-        if (!exists && name.trim().length > 0) {
+        const trimmedName = name ? name.trim() : '';
+        if (trimmedName.length === 0) return;
+
+        // Cari tahu index checkpoint aktif saat ini berdasarkan stopwatch server
+        const checkpointsList = [0, 15, 30, 45, 60, 75];
+        const cpIdx = checkpointsList.indexOf(state.timerState.currentCheckpoint);
+
+        // Cari apakah peserta sudah terdaftar sebelumnya
+        const existing = state.participants.find(p => p.name.toLowerCase() === trimmedName.toLowerCase());
+
+        if (existing) {
+            // JIKA SUDAH ADA: Otomatis tandai checkpoint aktif saat ini sebagai TRUE (Hadir)
+            if (cpIdx >= 0 && cpIdx <= 5) {
+                existing.checkpoints[cpIdx] = true;
+                // Hitung ulang bobot total = baseWeight + total checkpoints aktif
+                const activeCount = existing.checkpoints.filter(c => c).length;
+                existing.weight = existing.baseWeight + activeCount;
+                console.log(`[RAPID CHECK-IN] ${existing.name} otomatis absen pada checkpoint ${state.timerState.currentCheckpoint}m via input ulang.`);
+            }
+        } else {
+            // JIKA BELUM ADA: Daftarkan sebagai peserta baru
             const bw = parseFloat(baseWeight) || 1;
+            const checkpoints = [false, false, false, false, false, false];
+            
+            // Otomatis tandai juga checkpoint aktif saat ini untuk pendatang baru!
+            if (cpIdx >= 0 && cpIdx <= 5) {
+                checkpoints[cpIdx] = true;
+            }
+
+            const activeCount = checkpoints.filter(c => c).length;
+            
             state.participants.push({
-                name: name.trim(),
+                name: trimmedName,
                 baseWeight: bw,
-                weight: bw,
-                checkpoints: [false, false, false, false, false, false],
+                weight: bw + activeCount,
+                checkpoints: checkpoints,
                 color: colors[state.participants.length % colors.length]
             });
-            
-            syncRawInputFromParticipants();
-            currentTotalWeight = recalculateAnglesAndTotalWeight();
-            
-            io.emit('state:participants', {
-                participants: state.participants,
-                totalWeight: currentTotalWeight,
-                rawInput: state.rawInput
-            });
+            console.log(`[NEW PARTICIPANT] ${trimmedName} ditambahkan dan otomatis absen pada checkpoint ${state.timerState.currentCheckpoint}m.`);
         }
+        
+        syncRawInputFromParticipants();
+        currentTotalWeight = recalculateAnglesAndTotalWeight();
+        
+        io.emit('state:participants', {
+            participants: state.participants,
+            totalWeight: currentTotalWeight,
+            rawInput: state.rawInput
+        });
     });
 
     // 15. Absen/checkin seluruh peserta yang terdaftar untuk checkpoint saat ini
