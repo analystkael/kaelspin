@@ -1303,9 +1303,264 @@
             pointer-events: none;
             z-index: 1001;
         }
+
+        /* --- LOCK SCREEN & AUTH SYSTEM STYLE --- */
+        #admin-lock-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #0f1026 0%, #030408 100%);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
+            transition: all 0.5s ease-in-out;
+        }
+
+        .lock-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 30px;
+            border-radius: 24px;
+            background: rgba(18, 19, 38, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 210, 211, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInLock 0.6s ease-out;
+        }
+
+        @keyframes fadeInLock {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .lock-logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 26px;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #ffffff 30%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 210, 211, 0.2);
+        }
+
+        .lock-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .otp-input-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
+            width: 100%;
+        }
+
+        .otp-digit {
+            width: 48px;
+            height: 56px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 800;
+            text-align: center;
+            font-family: 'Consolas', monospace;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .otp-digit:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(0, 210, 211, 0.4);
+            background: rgba(0, 210, 211, 0.05);
+        }
+
+        .lock-error-msg {
+            color: var(--accent-primary);
+            font-size: 12px;
+            font-weight: 700;
+            min-height: 18px;
+            text-shadow: 0 0 8px rgba(255, 118, 117, 0.3);
+            display: none;
+            animation: shakeError 0.4s ease;
+        }
+
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        .setup-link-btn {
+            font-size: 12px;
+            color: var(--accent-secondary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            transition: 0.2s;
+        }
+
+        .setup-link-btn:hover {
+            color: #ffffff;
+            text-shadow: 0 0 10px var(--accent-secondary);
+        }
+
+        /* Modal Setup Authenticator */
+        #authenticator-setup-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 4, 8, 0.85);
+            z-index: 10000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            animation: fadeInLock 0.3s ease;
+        }
+
+        .setup-card {
+            width: 100%;
+            max-width: 440px;
+            padding: 30px;
+            border-radius: 24px;
+            background: rgba(12, 13, 29, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 35px rgba(251, 197, 49, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .setup-qr-frame {
+            position: relative;
+            padding: 10px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+            width: 220px;
+            height: 220px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .setup-qr-frame::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: #2ed573;
+            box-shadow: 0 0 8px #2ed573;
+            animation: qrScanLine 3s infinite ease-in-out;
+        }
+
+        @keyframes qrScanLine {
+            0% { top: 0; }
+            50% { top: 100%; }
+            100% { top: 0; }
+        }
+
+        .setup-qr-frame img {
+            width: 200px;
+            height: 200px;
+            display: block;
+        }
+
+        .setup-secret-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            color: var(--accent-secondary);
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 8px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .setup-secret-badge:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-secondary);
+        }
     </style>
 </head>
 <body>
+
+    <!-- LOCK SCREEN DI PANEL ADMIN -->
+    <div id="admin-lock-screen">
+        <div class="lock-container">
+            <div class="lock-logo">🔒 KAELSPIN SECURITY</div>
+            <p class="lock-subtitle">Masukkan 6-digit kode verifikasi dari aplikasi Authenticator di HP Anda.</p>
+            
+            <div class="otp-input-container">
+                <input type="text" maxlength="1" class="otp-digit" id="otp-1" oninput="moveOtpFocus(this, 'otp-2')" onkeydown="handleOtpBackspace(event, '', 'otp-1')">
+                <input type="text" maxlength="1" class="otp-digit" id="otp-2" oninput="moveOtpFocus(this, 'otp-3')" onkeydown="handleOtpBackspace(event, 'otp-1', 'otp-2')">
+                <input type="text" maxlength="1" class="otp-digit" id="otp-3" oninput="moveOtpFocus(this, 'otp-4')" onkeydown="handleOtpBackspace(event, 'otp-2', 'otp-3')">
+                <input type="text" maxlength="1" class="otp-digit" id="otp-4" oninput="moveOtpFocus(this, 'otp-5')" onkeydown="handleOtpBackspace(event, 'otp-3', 'otp-4')">
+                <input type="text" maxlength="1" class="otp-digit" id="otp-5" oninput="moveOtpFocus(this, 'otp-6')" onkeydown="handleOtpBackspace(event, 'otp-4', 'otp-5')">
+                <input type="text" maxlength="1" class="otp-digit" id="otp-6" oninput="verifyOtpOnInput(this)" onkeydown="handleOtpBackspace(event, 'otp-5', 'otp-6')">
+            </div>
+
+            <div class="lock-error-msg" id="lock-error-text">Kode OTP salah atau kedaluwarsa!</div>
+
+            <button class="btn-action btn-primary" onclick="submitOtpCode()" style="margin-top: 10px;" id="btn-verify-otp">
+                Verifikasi & Masuk
+            </button>
+
+            <button class="setup-link-btn" onclick="openSetupModal()" style="margin-top: 10px;">
+                Setup Authenticator App (QR Code)
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL SETUP AUTHENTICATOR -->
+    <div id="authenticator-setup-modal">
+        <div class="setup-card">
+            <div class="panel-title" style="border:none; width: 100%; justify-content: center; font-size: 18px;">
+                <span style="color: var(--accent-secondary);">⚙️ Setup Google Authenticator</span>
+            </div>
+            <p class="lock-subtitle" style="margin-top: -5px;">Scan QR Code ini menggunakan aplikasi Authenticator Anda (Google Authenticator, Authy, dll.)</p>
+            
+            <div class="setup-qr-frame">
+                <img id="setup-qr-img" src="" alt="Scan QR Code">
+            </div>
+            
+            <div style="font-size: 11px; color: var(--text-secondary);">ATAU MASUKKAN SECRET KEY MANUAL:</div>
+            <div class="setup-secret-badge" id="setup-secret-text" onclick="copySetupSecret()" title="Klik untuk menyalin">
+                KAELSPINWHEEL2345
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </div>
+            
+            <button class="btn-action btn-secondary" onclick="closeSetupModal()" style="width: 100%; margin-top: 10px;">
+                Lanjut Ke Login
+            </button>
+        </div>
+    </div>
 
     <!-- Latar Belakang Grid Kosmik -->
     <div class="cosmic-grid"></div>
@@ -1313,7 +1568,7 @@
     <!-- Canvas Khusus Konfeti Selebrasi -->
     <canvas id="confettiCanvas"></canvas>
 
-    <div id="app-wrapper">
+    <div id="app-wrapper" style="display: none;">
         <header>
             <div class="header-title-container">
                 <span class="sys-badge">Admin Dashboard v2.5</span>
@@ -1508,7 +1763,182 @@
     <!-- PUSTAKA WEBSOCKET (Socket.io-client) -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io();
+        // --- SISTEM KEAMANAN & HANDSHAKE AUTENTIKASI ---
+        const socket = io({
+            auth: {
+                token: localStorage.getItem('admin_token') || ''
+            },
+            autoConnect: false
+        });
+
+        // Pengecekan token saat halaman pertama kali dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('admin_token');
+            if (token) {
+                // Token ditemukan, coba hubungkan ke websocket server
+                socket.auth.token = token;
+                socket.connect();
+                // Tampilkan dashboard utama
+                document.getElementById('app-wrapper').style.display = 'flex';
+                document.getElementById('admin-lock-screen').style.display = 'none';
+            } else {
+                // Token tidak ditemukan, tampilkan lock screen
+                showLockScreen();
+            }
+        });
+
+        // --- LOGIKA KEAMANAN TOTP CLIENT-SIDE ---
+        function moveOtpFocus(current, nextId) {
+            if (current.value.length >= 1) {
+                const nextInput = document.getElementById(nextId);
+                if (nextInput) {
+                    nextInput.focus();
+                    nextInput.select();
+                }
+            }
+        }
+
+        function handleOtpBackspace(event, prevId, currentId) {
+            if (event.key === 'Backspace') {
+                const current = document.getElementById(currentId);
+                if (current.value.length === 0 && prevId) {
+                    const prevInput = document.getElementById(prevId);
+                    if (prevInput) {
+                        prevInput.focus();
+                        prevInput.value = '';
+                    }
+                }
+            }
+        }
+
+        function verifyOtpOnInput(current) {
+            if (current.value.length >= 1) {
+                submitOtpCode();
+            }
+        }
+
+        async function submitOtpCode() {
+            const code = Array.from({ length: 6 }, (_, i) => document.getElementById(`otp-${i + 1}`).value).join('');
+            if (code.length < 6) {
+                showLockError('Masukkan 6-digit kode OTP lengkap!');
+                return;
+            }
+
+            const btn = document.getElementById('btn-verify-otp');
+            btn.disabled = true;
+            btn.innerText = 'Memverifikasi...';
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    localStorage.setItem('admin_token', data.token);
+                    hideLockScreen();
+                    
+                    // Hubungkan socket dengan token baru
+                    socket.auth.token = data.token;
+                    socket.connect();
+                } else {
+                    showLockError(data.error || 'Kode OTP salah!');
+                    clearOtpFields();
+                }
+            } catch (err) {
+                console.error("Gagal login:", err);
+                showLockError('Gagal menghubungi server!');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Verifikasi & Masuk';
+            }
+        }
+
+        function showLockError(msg) {
+            const errorText = document.getElementById('lock-error-text');
+            errorText.innerText = msg;
+            errorText.style.display = 'block';
+            
+            // Guncang container login
+            const container = document.querySelector('.lock-container');
+            container.style.animation = 'none';
+            container.offsetHeight; // Trigger reflow
+            container.style.animation = 'shakeError 0.4s ease';
+            
+            setTimeout(() => {
+                errorText.style.display = 'none';
+            }, 4000);
+        }
+
+        function clearOtpFields() {
+            for (let i = 1; i <= 6; i++) {
+                const input = document.getElementById(`otp-${i}`);
+                input.value = '';
+            }
+            document.getElementById('otp-1').focus();
+        }
+
+        function hideLockScreen() {
+            const lockScreen = document.getElementById('admin-lock-screen');
+            lockScreen.style.opacity = '0';
+            setTimeout(() => {
+                lockScreen.style.display = 'none';
+            }, 500);
+            
+            // Tampilkan dashboard admin
+            document.getElementById('app-wrapper').style.display = 'flex';
+        }
+
+        function showLockScreen() {
+            const lockScreen = document.getElementById('admin-lock-screen');
+            lockScreen.style.display = 'flex';
+            lockScreen.style.opacity = '1';
+            
+            // Sembunyikan dashboard admin
+            document.getElementById('app-wrapper').style.display = 'none';
+            clearOtpFields();
+        }
+
+        async function openSetupModal() {
+            try {
+                const response = await fetch('/api/auth/setup');
+                const data = await response.json();
+                
+                document.getElementById('setup-qr-img').src = data.qrCodeUrl;
+                document.getElementById('setup-secret-text').innerHTML = `
+                    ${data.secret}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                `;
+                
+                document.getElementById('authenticator-setup-modal').style.display = 'flex';
+            } catch (err) {
+                console.error("Gagal mengambil data setup:", err);
+                alert("Gagal memuat QR Code setup!");
+            }
+        }
+
+        function closeSetupModal() {
+            document.getElementById('authenticator-setup-modal').style.display = 'none';
+            document.getElementById('otp-1').focus();
+        }
+
+        function copySetupSecret() {
+            const el = document.getElementById('setup-secret-text');
+            const textToCopy = el.innerText.trim();
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalText = el.innerHTML;
+                el.innerHTML = "SALIN BERHASIL! ✓";
+                el.style.color = "var(--accent-green)";
+                setTimeout(() => {
+                    el.innerHTML = originalText;
+                    el.style.color = "var(--accent-secondary)";
+                }, 1500);
+            }).catch(err => {
+                console.error("Gagal menyalin teks:", err);
+            });
+        }
 
         // --- SYNTHESIZED SOUND EFFECTS ENGINE (Web Audio API) ---
         const audioSynth = {
@@ -2119,6 +2549,15 @@
 
         // --- WEBSOCKET CLIENT EVENTS (Socket.io) ---
         socket.on('init', (data) => {
+            // Validasi hak akses admin dari server
+            if (!data.isAdmin) {
+                console.warn("Token tidak valid atau kedaluwarsa. Mengarahkan ke Lock Screen.");
+                localStorage.removeItem('admin_token');
+                showLockScreen();
+                socket.disconnect();
+                return;
+            }
+
             participants = data.participants;
             document.getElementById('raw-input').value = data.rawInput;
             document.getElementById('counter-display').innerText = `${participants.length} Peserta`;

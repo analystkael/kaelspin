@@ -2,12 +2,116 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
+const crypto = require('crypto');
 
 const app = express();
+app.use(express.json()); // Untuk memproses JSON body request
 const server = http.createServer(app);
 const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
+
+// --- SISTEM KEAMANAN TOTP & STATELESS SESSION TOKEN ---
+const ADMIN_TOTP_SECRET = process.env.ADMIN_TOTP_SECRET || 'KAELSPINWHEEL2345';
+
+function base32Decode(base32) {
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+    const cleaned = base32.replace(/=+$/, "").toUpperCase();
+    let bits = "";
+    for (let i = 0; i < cleaned.length; i++) {
+        const val = alphabet.indexOf(cleaned[i]);
+        if (val === -1) {
+            throw new Error("Invalid base32 character: " + cleaned[i]);
+        }
+        bits += val.toString(2).padStart(5, '0');
+    }
+    const bytes = [];
+    for (let i = 0; i + 8 <= bits.length; i += 8) {
+        bytes.push(parseInt(bits.substr(i, 8), 2));
+    }
+    return Buffer.from(bytes);
+}
+
+function generateTOTP(secret, time) {
+    const key = base32Decode(secret);
+    const counter = Buffer.alloc(8);
+    counter.writeUInt32BE(0, 0);
+    counter.writeUInt32BE(time, 4);
+
+    const hmac = crypto.createHmac('sha1', key);
+    hmac.update(counter);
+    const hmacResult = hmac.digest();
+
+    const offset = hmacResult[hmacResult.length - 1] & 0xf;
+    const code = ((hmacResult[offset] & 0x7f) << 24) |
+                 ((hmacResult[offset + 1] & 0xff) << 16) |
+                 ((hmacResult[offset + 2] & 0xff) << 8) |
+                 (hmacResult[offset + 3] & 0xff);
+
+    return (code % 1000000).toString().padStart(6, '0');
+}
+
+function verifyTOTP(token, secret, window = 1) {
+    const epoch = Math.floor(Date.now() / 1000);
+    const counter = Math.floor(epoch / 30);
+    
+    for (let i = -window; i <= window; i++) {
+        try {
+            const expected = generateTOTP(secret, counter + i);
+            if (token === expected) return true;
+        } catch (e) {
+            console.error("Gagal verifikasi TOTP:", e);
+            return false;
+        }
+    }
+    return false;
+}
+
+function generateSessionToken(secret) {
+    const expires = Date.now() + 24 * 60 * 60 * 1000; // Sesi valid selama 24 jam
+    const data = expires.toString();
+    const signature = crypto.createHmac('sha256', secret).update(data).digest('hex');
+    return `${data}.${signature}`;
+}
+
+function verifySessionToken(token, secret) {
+    if (!token) return false;
+    const parts = token.split('.');
+    if (parts.length !== 2) return false;
+    const [expiresStr, signature] = parts;
+    const expires = parseInt(expiresStr);
+    if (isNaN(expires) || expires < Date.now()) return false;
+    const expectedSignature = crypto.createHmac('sha256', secret).update(expiresStr).digest('hex');
+    return signature === expectedSignature;
+}
+
+// --- REST API ENDPOINTS ---
+app.post('/api/auth/login', (req, res) => {
+    const { code } = req.body;
+    if (!code) {
+        return res.status(400).json({ success: false, error: 'Masukkan kode OTP!' });
+    }
+    
+    const isValid = verifyTOTP(code, ADMIN_TOTP_SECRET);
+    if (isValid) {
+        const token = generateSessionToken(ADMIN_TOTP_SECRET);
+        return res.json({ success: true, token });
+    } else {
+        return res.status(400).json({ success: false, error: 'Kode OTP salah atau kedaluwarsa!' });
+    }
+});
+
+app.get('/api/auth/setup', (req, res) => {
+    const issuer = 'KaelSpinWheel';
+    const label = 'Admin';
+    const otpauthUri = `otpauth://totp/${issuer}:${label}?secret=${ADMIN_TOTP_SECRET}&issuer=${issuer}`;
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(otpauthUri)}`;
+    
+    return res.json({
+        secret: ADMIN_TOTP_SECRET,
+        qrCodeUrl: qrCodeUrl
+    });
+});
 
 // Menyajikan file statis dari folder public
 app.use(express.static(path.join(__dirname, 'public')));
@@ -160,8 +264,26 @@ setInterval(() => {
 
 // --- WEBSOCKET REAL-TIME EVENTS (Socket.io) ---
 io.on('connection', (socket) => {
-    console.log(`Klien terhubung [ID: ${socket.id}]`);
+    // Cek token sesi admin pada saat handshaking / koneksi awal
+    const token = socket.handshake.auth?.token;
+    const isAdmin = verifySessionToken(token, ADMIN_TOTP_SECRET);
+    socket.isAdmin = isAdmin;
     
+    if (isAdmin) {
+        console.log(`Admin TEROTORISASI terhubung [ID: ${socket.id}]`);
+    } else {
+        console.log(`Klien biasa/OBS terhubung [ID: ${socket.id}]`);
+    }
+
+    // Middleware packet level: filter ketat semua event 'admin:*'
+    socket.use(([event, ...args], next) => {
+        if (event.startsWith('admin:') && !socket.isAdmin) {
+            console.warn(`[KEAMANAN] Perintah admin ditolak dari socket non-admin [ID: ${socket.id}]: event = ${event}`);
+            return next(new Error('Akses admin tidak sah!'));
+        }
+        next();
+    });
+
     // 1. Kirim state lengkap terupdate saat klien baru pertama kali terhubung
     socket.emit('init', {
         participants: state.participants,
@@ -171,7 +293,8 @@ io.on('connection', (socket) => {
         spinState: state.spinState,
         rawInput: state.rawInput,
         currentWinner: state.currentWinner,
-        showTransparency: state.showTransparency
+        showTransparency: state.showTransparency,
+        isAdmin: socket.isAdmin // Kirim info hak akses ke sisi client
     });
 
     // 2. Admin memperbarui data nama & bobot

@@ -4,3 +4,4 @@ node_modules/
 test_client.js
 stream_simulation.js
 stream_simulation_80m.js
+verify_totp_security.js
