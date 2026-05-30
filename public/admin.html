@@ -1023,7 +1023,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            height: 380px;
+            height: 520px; /* Ditambah dari 380px agar muat lebih banyak penonton */
         }
 
         .search-add-box {
@@ -1115,11 +1115,11 @@
         .viewer-card-item {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.04);
-            border-radius: 12px;
-            padding: 10px 12px;
+            border-radius: 14px;
+            padding: 12px 16px; /* Ditambah dari 10px 12px */
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
             transition: 0.2s;
         }
 
@@ -1136,14 +1136,14 @@
 
         .viewer-name-lbl {
             font-weight: 800;
-            font-size: 13px;
+            font-size: 15px; /* Ditambah dari 13px */
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .viewer-prob-lbl {
-            font-size: 11px;
+            font-size: 13px; /* Ditambah dari 11px */
             font-weight: 800;
             font-family: 'Outfit', sans-serif;
         }
@@ -1153,23 +1153,23 @@
             justify-content: space-between;
             align-items: center;
             background: rgba(0, 0, 0, 0.2);
-            padding: 6px 10px;
-            border-radius: 8px;
+            padding: 8px 12px; /* Ditambah dari 6px 10px */
+            border-radius: 10px;
         }
 
         .cp-grid-bubbles {
             display: flex;
-            gap: 5px;
+            gap: 6px; /* Ditambah dari 5px */
         }
 
         .cp-bubble {
-            width: 18px;
-            height: 18px;
+            width: 24px; /* Ditambah dari 18px agar mudah diklik saat live stream */
+            height: 24px; /* Ditambah dari 18px */
             border-radius: 50%;
             background: #111224;
             border: 1px solid #2f3152;
             color: var(--text-secondary);
-            font-size: 8px;
+            font-size: 11px; /* Ditambah dari 8px */
             font-weight: 800;
             display: flex;
             align-items: center;
@@ -1188,17 +1188,17 @@
         .viewer-weight-adjuster {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .btn-weight-tweak {
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
+            width: 22px; /* Ditambah dari 16px */
+            height: 22px; /* Ditambah dari 16px */
+            border-radius: 6px;
             border: none;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.08);
             color: var(--text-primary);
-            font-size: 10px;
+            font-size: 13px; /* Ditambah dari 10px */
             font-weight: 800;
             cursor: pointer;
             display: flex;
@@ -1208,29 +1208,38 @@
         }
 
         .btn-weight-tweak:hover {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
         }
 
         .viewer-base-weight-val {
-            font-size: 11px;
+            font-size: 14px; /* Ditambah dari 11px */
             font-family: 'Consolas', monospace;
             font-weight: 800;
+            color: var(--accent-cyan);
+            text-shadow: 0 0 5px rgba(0, 210, 211, 0.3);
         }
 
         .viewer-delete-x {
             color: var(--accent-primary);
             cursor: pointer;
-            font-size: 14px;
+            font-size: 18px; /* Ditambah dari 14px */
             font-weight: 800;
             opacity: 0.6;
             transition: 0.2s;
             background: none;
             border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
         }
 
         .viewer-delete-x:hover {
             opacity: 1;
-            transform: scale(1.15);
+            transform: scale(1.25);
+            color: #ff4757;
         }
 
         /* Toggle OBS Card */
