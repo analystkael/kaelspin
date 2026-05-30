@@ -331,22 +331,54 @@
             text-shadow: 0 0 8px rgba(251, 197, 49, 0.4);
         }
 
-        /* 3-Column Layout */
+        /* Top Row Layout (2-Column) */
         .main-container {
             display: grid;
-            grid-template-columns: 330px 1fr 330px;
+            grid-template-columns: 1.2fr 1fr;
             gap: 20px;
             width: 100%;
             align-items: start;
         }
 
-        @media (max-width: 1024px) {
+        @media (max-width: 900px) {
             .main-container {
                 grid-template-columns: 1fr;
             }
-            .center-panel {
-                order: -1;
+        }
+
+        /* --- BOTTOM CONTAINER LAYOUT SYSTEM --- */
+        .bottom-container {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .bottom-layout-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr; /* Kiri: Panel Kontrol (320px), Kanan: List Grid (Spacious!) */
+            gap: 25px;
+            width: 100%;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .bottom-layout-grid {
+                grid-template-columns: 1fr; /* Satu kolom di layar kecil */
+                gap: 15px;
             }
+        }
+
+        .bottom-controls-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .bottom-content-area {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
         }
 
         /* Sangat responsif jika dibuka di HP / Layar kecil */
@@ -1106,10 +1138,11 @@
         .viewer-list-scroll {
             flex: 1;
             overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 12px;
             padding-right: 4px;
+            max-height: 480px; /* Batas tinggi scroll jika sangat banyak */
         }
 
         .viewer-card-item {
@@ -1649,75 +1682,7 @@
         </div>
 
         <div class="main-container">
-            <!-- Left Column: Input & Keaktifan Viewer -->
-            <div class="glass-panel">
-                <div class="panel-title">
-                    <span>Daftar Peserta & Absensi</span>
-                    <span style="font-size: 12px; font-weight: normal; color: var(--text-secondary);" id="counter-display">0 Peserta</span>
-                </div>
-                
-                <!-- Tab Buttons -->
-                <div class="tabs-header">
-                    <button class="tab-btn active" id="btn-tab-active" onclick="switchTab('active-tab')">Keaktifan (Absen)</button>
-                    <button class="tab-btn" id="btn-tab-manual" onclick="switchTab('manual-tab')">Edit Manual (Teks)</button>
-                </div>
-
-                <!-- TAB 1: PENGELOLA ABSEN KEAKTIFAN INTERAKTIF -->
-                <div id="active-tab" class="tab-content active">
-                    <div class="viewer-manager-wrapper">
-                        <!-- Quick Add & Search -->
-                        <div class="search-add-box">
-                            <div class="input-row">
-                                <input type="text" id="quick-add-name" class="input-dark" placeholder="Ketik nama penonton baru..." onkeydown="if(event.key==='Enter') quickAddParticipant()">
-                                <button class="btn-small-icon" onclick="quickAddParticipant()" title="Tambah ke Roda">+</button>
-                            </div>
-                            <input type="text" id="viewer-search" class="input-dark" placeholder="Cari nama di sini..." oninput="filterViewerList()">
-                        </div>
-
-                        <!-- Action Controls -->
-                        <div class="action-row-manager">
-                            <span style="color: var(--text-secondary); font-size: 10px; font-weight: 700;">SETIAP ABSEN MENAMBAH +1 POIN</span>
-                            <button class="btn-action-small" onclick="checkinAllActiveNow()">Absen Semua Peserta</button>
-                        </div>
-
-                        <!-- Scrollable Viewer List -->
-                        <div class="viewer-list-scroll" id="viewer-manager-list">
-                            <!-- JS Akan Menggambar Daftar Viewer Kartu Absensi di Sini -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 2: INPUT MANUAL TEXTAREA -->
-                <div id="manual-tab" class="tab-content">
-                    <p class="panel-subtitle" style="margin-top:0; margin-bottom:8px;">Format: "Nama:Poin" (contoh: Budi:5 atau Citra:1). Tekan simpan untuk memperbarui.</p>
-                    <textarea id="raw-input" placeholder="Andi:1&#10;Budi:1&#10;Citra:1&#10;Dewi:1" style="height: 230px;"></textarea>
-                    <button class="btn-action btn-primary" onclick="loadDataFromInput()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-                        Simpan & Terapkan Data
-                    </button>
-                </div>
-
-                <!-- Preset Buttons (Outside Tabs) -->
-                <div class="preset-container" style="margin-top: 5px;">
-                    <div class="preset-label">Presets Cepat:</div>
-                    <div class="preset-buttons">
-                        <button class="btn-preset" onclick="loadPreset('arisan')">Arisan</button>
-                        <button class="btn-preset" onclick="loadPreset('giveaway')">Giveaway</button>
-                        <button class="btn-preset" onclick="loadPreset('lucky')">Jackpot</button>
-                    </div>
-                </div>
-
-                <!-- Toggle OBS Card -->
-                <div class="obs-control-card">
-                    <span class="obs-control-lbl">Tampilkan Papan Bukti di Layar</span>
-                    <label class="switch-toggle">
-                        <input type="checkbox" id="obs-transparency-chk" onchange="toggleObsTransparency(this.checked)" checked>
-                        <span class="slider-toggle"></span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Center Column: Spin Wheel Canvas -->
+            <!-- Left Panel: Spin Wheel Canvas (Center Panel sebelumnya) -->
             <div class="center-panel">
                 <div class="wheel-outer-ring" id="wheel-rim">
                     <canvas id="gachaCanvas" width="420" height="420"></canvas>
@@ -1729,7 +1694,7 @@
                 </div>
             </div>
 
-            <!-- Right Column: Stats & Winner History -->
+            <!-- Right Panel: Stats & Winner History (Right Column sebelumnya) -->
             <div class="glass-panel">
                 <!-- Statistik Peluang -->
                 <div>
@@ -1747,6 +1712,78 @@
                     </div>
                     <div id="history-list" class="history-list">
                         <div class="empty-state">Belum ada pemenang terpilih.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Panel: Input & Keaktifan Viewer (Daftar Peserta & Absensi) -->
+        <div class="bottom-container glass-panel">
+            <div class="panel-title">
+                <span>Daftar Peserta & Absensi</span>
+                <span style="font-size: 12px; font-weight: normal; color: var(--text-secondary);" id="counter-display">0 Peserta</span>
+            </div>
+            
+            <div class="bottom-layout-grid">
+                <!-- Left: Controls Panel (Search, Quick Add, Presets, OBS toggle) -->
+                <div class="bottom-controls-sidebar">
+                    <!-- Tab Buttons -->
+                    <div class="tabs-header">
+                        <button class="tab-btn active" id="btn-tab-active" onclick="switchTab('active-tab')">Keaktifan (Absen)</button>
+                        <button class="tab-btn" id="btn-tab-manual" onclick="switchTab('manual-tab')">Edit Manual (Teks)</button>
+                    </div>
+
+                    <!-- Quick Add & Search -->
+                    <div class="search-add-box">
+                        <div class="input-row">
+                            <input type="text" id="quick-add-name" class="input-dark" placeholder="Ketik nama penonton baru..." onkeydown="if(event.key==='Enter') quickAddParticipant()">
+                            <button class="btn-small-icon" onclick="quickAddParticipant()" title="Tambah ke Roda">+</button>
+                        </div>
+                        <input type="text" id="viewer-search" class="input-dark" placeholder="Cari nama di sini..." oninput="filterViewerList()">
+                    </div>
+
+                    <!-- Preset Buttons -->
+                    <div class="preset-container" style="margin-top: 5px;">
+                        <div class="preset-label">Presets Cepat:</div>
+                        <div class="preset-buttons">
+                            <button class="btn-preset" onclick="loadPreset('arisan')">Arisan</button>
+                            <button class="btn-preset" onclick="loadPreset('giveaway')">Giveaway</button>
+                            <button class="btn-preset" onclick="loadPreset('lucky')">Jackpot</button>
+                        </div>
+                    </div>
+
+                    <!-- Toggle OBS Card -->
+                    <div class="obs-control-card" style="margin-top: 10px;">
+                        <span class="obs-control-lbl">Tampilkan Papan Bukti di Layar</span>
+                        <label class="switch-toggle">
+                            <input type="checkbox" id="obs-transparency-chk" onchange="toggleObsTransparency(this.checked)" checked>
+                            <span class="slider-toggle"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Right: Content Area (Absen Grid or Textarea) -->
+                <div class="bottom-content-area">
+                    <!-- TAB 1: PENGELOLA ABSEN KEAKTIFAN INTERAKTIF -->
+                    <div id="active-tab" class="tab-content active" style="width: 100%;">
+                        <div class="action-row-manager" style="margin-bottom: 8px;">
+                            <span style="color: var(--text-secondary); font-size: 10px; font-weight: 700;">SETIAP ABSEN MENAMBAH +1 POIN</span>
+                            <button class="btn-action-small" onclick="checkinAllActiveNow()">Absen Semua Peserta</button>
+                        </div>
+                        <!-- Scrollable Viewer List Grid (Responsif & Luas!) -->
+                        <div class="viewer-list-scroll" id="viewer-manager-list">
+                            <!-- JS Akan Menggambar Daftar Viewer Kartu Absensi di Sini -->
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: INPUT MANUAL TEXTAREA -->
+                    <div id="manual-tab" class="tab-content" style="width: 100%;">
+                        <p class="panel-subtitle" style="margin-top:0; margin-bottom:8px;">Format: "Nama:Poin" (contoh: Budi:5 atau Citra:1). Tekan simpan untuk memperbarui.</p>
+                        <textarea id="raw-input" placeholder="Andi:1&#10;Budi:1&#10;Citra:1&#10;Dewi:1" style="height: 200px;"></textarea>
+                        <button class="btn-action btn-primary" onclick="loadDataFromInput()" style="margin-top: 10px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                            Simpan & Terapkan Data
+                        </button>
                     </div>
                 </div>
             </div>
