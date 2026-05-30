@@ -12,7 +12,7 @@ const io = new Server(server);
 const PORT = process.env.PORT || 3000;
 
 // --- SISTEM KEAMANAN TOTP & STATELESS SESSION TOKEN ---
-const ADMIN_TOTP_SECRET = process.env.ADMIN_TOTP_SECRET || 'KAELSPINWHEEL2345';
+const ADMIN_TOTP_SECRET = process.env.ADMIN_TOTP_SECRET || 'KAELSPINWHEEL234';
 
 function base32Decode(base32) {
     const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
